@@ -1,0 +1,12 @@
+{
+  "name": "ReportingApp",
+  "version": "1.0.0",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "bootstrap": "^4.3.1",
+    "devextreme-dist": "24.2-next",
+    "@devexpress/analytics-core": "24.2-next",
+    "devexpress-reporting": "24.2-next"
+  }
+}

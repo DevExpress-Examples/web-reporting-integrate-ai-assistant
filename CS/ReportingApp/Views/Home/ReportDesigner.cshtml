@@ -1,0 +1,36 @@
+﻿@model DevExpress.XtraReports.Web.ReportDesigner.ReportDesignerModel
+
+<script>
+    async function BeforeRender(sender, args) {
+        const result = await fetch(`/AI/CreateUserAssistant`);
+        const chatId = await result.text();
+        const tab = createAssistantTab(chatId);
+        args.tabPanel.tabs.push(tab);
+    }
+</script>
+
+@await Html.PartialAsync("_AILayout")
+@{
+    var designerRender = Html.DevExpress().ReportDesigner("reportDesigner")
+        .Height("100%")
+        .ClientSideEvents(configure => {
+            configure.BeforeRender("BeforeRender");
+        })
+        .Bind(Model);
+    @designerRender.RenderHtml()
+}
+
+@section Scripts {
+    <link href="~/css/dx-reporting-skeleton-screen.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/viewer.part.bundle.css" />
+    <link rel="stylesheet" href="~/css/designer.part.bundle.css" />
+    <link rel="stylesheet" href="~/css/ace/ace.bundle.css" />
+    <link rel="stylesheet" href="~/css/dx.material.blue.light.bundle.css" />
+
+    <script src="~/js/reporting.thirdparty.bundle.js"></script>
+    <script src="~/js/viewer.part.bundle.js"></script>
+    <script src="~/js/designer.part.bundle.js"></script>
+    <script src="~/js/aiIntegration.js"></script>
+
+    @designerRender.RenderScripts()
+}

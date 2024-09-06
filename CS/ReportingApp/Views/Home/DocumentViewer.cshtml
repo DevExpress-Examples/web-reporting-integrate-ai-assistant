@@ -1,0 +1,57 @@
+﻿@model DevExpress.XtraReports.Web.WebDocumentViewer.WebDocumentViewerModel
+@await Html.PartialAsync("_AILayout")
+<script>
+    let aiTab;
+    function BeforeRender(sender, args) {
+        const previewModel = args;
+        const reportPreview = previewModel.reportPreview;
+
+        aiTab = createAssistantTab();
+        const model = aiTab.model;
+        previewModel.tabPanel.tabs.push(aiTab);
+        reportPreview.events.on('documentBuildingChanged', (args) => {
+            if (args.newValue === true) {
+                aiTab.visible = false;
+                if (model.chatId) {
+                    const formData = new FormData();
+                    formData.append('chatId', model.chatId);
+                    fetch(`/AI/CloseChat`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    model.chatId = '';
+                }
+            }
+        });
+    }
+
+    async function DocumentReady(sender, args) {
+        const response = await sender.PerformCustomDocumentOperation(null, true);
+        if (response.customData) {
+            aiTab.model.chatId = response.customData;
+            aiTab.visible = true;
+        }
+    }
+</script>
+
+@{
+    var viewerRender = Html.DevExpress().WebDocumentViewer("DocumentViewer")
+        .Height("100%")
+        .ClientSideEvents(configure => {
+            configure.BeforeRender("BeforeRender");
+            configure.DocumentReady("DocumentReady");
+        })
+        .Bind(Model);
+    @viewerRender.RenderHtml()
+}
+
+@section Scripts {
+    <link href="~/css/dx-reporting-skeleton-screen.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/viewer.part.bundle.css" />
+    <link rel="stylesheet" href="~/css/dx.material.blue.light.bundle.css" />
+    <script src="~/js/reporting.thirdparty.bundle.js"></script>
+    <script src="~/js/viewer.part.bundle.js"></script>
+    <script src="~/js/aiIntegration.js"></script>
+
+    @viewerRender.RenderScripts()
+}
