@@ -37,8 +37,8 @@ builder.Services.AddDevExpressAI((config) => {
 ```
 
 Files to Review: 
-- [Program.cs]()
-- [EnvSetting]()
+- [Program.cs](./CS/ReportingApp/Program.cs)
+- [EnvSetting.cs](./CS/ReportingApp/EnvSetting.cs)
 
 ### AI Assistant Provider
  
@@ -54,8 +54,8 @@ public interface IAIAssistantProvider {
 ```
 
 Files to Review: 
-- [AIAssistantProvider.cs]()
-- [IAIAssistantProvider.cs]()
+- [AIAssistantProvider.cs](./CS/ReportingApp/Services/AIAssistantProvider.cs)
+- [IAIAssistantProvider.cs](./CS/ReportingApp/Services/IAIAssistantProvider.cs)
 
 
 ### Web Document Viewer (Document Assistant)
@@ -142,10 +142,10 @@ onMessageSend: (e) => {
 
 #### Files to Review:
 
-- [DocumentViewer.cshtml]()
-- [AIDocumentOperationService.cs]()
-- [AIController.cs]()
-- [aiAssistant.js]()
+- [DocumentViewer.cshtml](./CS/ReportingApp/Views/Home/DocumentViewer.cshtml)
+- [AIDocumentOperationService.cs](CS/ReportingApp/Services/AIDocumentOperationService.cs)
+- [AIController.cs](./CS/ReportingApp/Controllers/AIController.cs)
+- [aiIntegration.js](./CS/ReportingApp/wwwroot/js/aiIntegration.js)
 
 ### Web Report Designer (User Assistant)
 
@@ -241,10 +241,10 @@ onMessageSend: (e) => {
 
 #### Files to Review:
 
-- [ReportDesigner.cshtml]()
-- [AIDocumentOperationService.cs]()
-- [AIController.cs]()
-- [aiAssistant.js]()
+- [ReportDesigner.cshtml](./CS/ReportingApp/Views/Home/ReportDesigner.cshtml)
+- [AIDocumentOperationService.cs](./CS/ReportingApp/Services/AIDocumentOperationService.cs)
+- [AIController.cs](./CS/ReportingApp/Controllers/AIController.cs)
+- [aiIntegration.js](./CS/ReportingApp/wwwroot/js/aiIntegration.js)
 
 ## More Examples
 
