@@ -27,7 +27,9 @@ The assistant addresses different usage scenarios based on DevExpress Reports co
 
 #### Add Personal Keys
 
-In this example, open [EnvSettings.cs](./CS/ReportingApp/EnvSettings.cs) and set `OPENAI_ENDPOINT` and `OPENAI_APIKEY` for Azure OpenAI:
+You need to create an Azure OpenAI resource in the Azure portal to use Document/User Assistants for DevExpress Reporting. Refer to this help topic for details: [Microsoft - Create and deploy an Azure OpenAI Service resource](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/create-resource?pivots=web-portal).
+
+When you have a private endpoint and an API key, open [EnvSettings.cs](./CS/ReportingApp/EnvSettings.cs) and set `OPENAI_ENDPOINT` and `OPENAI_APIKEY` for Azure OpenAI:
 
 ```cs
 public static class EnvSettings {
