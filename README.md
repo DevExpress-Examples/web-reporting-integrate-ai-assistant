@@ -3,7 +3,7 @@
 [![](https://img.shields.io/badge/📖_How_to_use_DevExpress_Examples-e9f6fc?style=flat-square)](https://docs.devexpress.com/GeneralInformation/403183)
 [![](https://img.shields.io/badge/💬_Leave_Feedback-feecdd?style=flat-square)](#does-this-example-address-your-development-requirementsobjectives)
 <!-- default badges end -->
-# Reporting for ASP.NET Core - Integrate AI Assistant  
+# Reporting for ASP.NET Core - Integrate AI Assistant based on Azure OpenAI
 
 This example integrates an AI assistant into a DevExpress Reports-powered ASP.NET Core Reporting application. User requests and assistant responses are displayed on-screen using the DevExtreme `dxChat` component.
 
