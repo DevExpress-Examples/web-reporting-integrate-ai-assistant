@@ -38,7 +38,7 @@ builder.Services.AddDevExpressAI((config) => {
 
 Files to Review: 
 - [Program.cs](./CS/ReportingApp/Program.cs)
-- [EnvSetting.cs](./CS/ReportingApp/EnvSetting.cs)
+- [EnvSettings.cs](./CS/ReportingApp/EnvSettings.cs)
 
 ### AI Assistant Provider
  
