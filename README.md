@@ -12,6 +12,8 @@ The assistant addresses different usage scenarios based on DevExpress Reports co
 - **Document Assistant**: An assistant for the DevExpress *Web Document Viewer*. This assistant analyzes report content and answers questions related to information within the report.
 - **User Assistant**: An assistant for the DevExpress *Web Report Designer*. This assistant offers usage-related information (how to add a new data source, etc). The information is sourced from [end-user documentation](https://github.com/DevExpress/dotnet-eud) published for DevExpress Web Reporting components.
 
+**Please note that initializing the Azure OpenAI Assistant takes time and the new tab with the Document/User Assistant appears once the document scanning is complete on the Microsoft Azure side.**
+
 > [!NOTE]
 > To run this project with an early access preview build, install npm packages with the following command:
 >
@@ -21,7 +23,21 @@ The assistant addresses different usage scenarios based on DevExpress Reports co
 
 ## Implementation Details
 
-### Register AI Services
+### Example Common Settings
+
+#### Add Personal Keys
+
+In this example, open [EnvSettings.cs](./CS/ReportingApp/EnvSettings.cs) and set `OPENAI_ENDPOINT` and `OPENAI_APIKEY` for Azure OpenAI:
+
+```cs
+public static class EnvSettings {
+        public static string AzureOpenAIEndpoint { get { return Environment.GetEnvironmentVariable("OPENAI_ENDPOINT"); } }
+        public static string AzureOpenAIKey { get { return Environment.GetEnvironmentVariable("OPENAI_APIKEY"); } }
+        public static string DeploymentName { get { return "GPT4o"; } } //Gpt35Turbo, gpt35turbo16k, GPT4, GPT4o
+}
+```
+
+#### Register AI Services
 
 Add the following code to the _Program.cs_ file to register AI services in your application:
 
@@ -40,7 +56,7 @@ Files to Review:
 - [Program.cs](./CS/ReportingApp/Program.cs)
 - [EnvSettings.cs](./CS/ReportingApp/EnvSettings.cs)
 
-### AI Assistant Provider
+#### AI Assistant Provider
  
 On the server side, the `AIAssistantProvider` service is used to manage assistants. An `IAIAssistantFactory` interface instance is used to create assistants with the keys from the previous steps.
  
