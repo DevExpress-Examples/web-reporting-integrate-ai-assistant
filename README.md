@@ -5,15 +5,15 @@
 <!-- default badges end -->
 # Reporting for ASP.NET Core - Integrate AI Assistant  
 
-This example integrates an AI assistant into an ASP.NET Core Reporting application. The user's requests and assistant's responses are displayed using the DevExtreme `dxChat` component.
+This example integrates an AI assistant into a DevExpress Reports-powered ASP.NET Core Reporting application. User requests and assistant responses are displayed on-screen using the DevExtreme `dxChat` component.
 
-The assistant serves different purposes depending on the used reporting component:
+The assistant addresses different usage scenarios based on DevExpress Reports components used:
 
-- **Document Assistant** is an assistant for the *Web Document Viewer*. This assistant analyzes the report content and answers questions related to the information in the report.
-- **User Assistant** is an assistant for the *Web Report Designer*. This assistant provides information on how to use the component, for example, how to add a new data source. The information is sourced from a PDF file that contains [end-user documentation](https://github.com/DevExpress/dotnet-eud) for Web Reporting components.
+- **Document Assistant**: An assistant for the DevExpress *Web Document Viewer*. This assistant analyzes report content and answers questions related to information within the report.
+- **User Assistant**: An assistant for the DevExpress *Web Report Designer*. This assistant offers usage-related information (how to add a new data source, etc). The information is sourced from [end-user documentation](https://github.com/DevExpress/dotnet-eud) published for DevExpress Web Reporting components.
 
 > [!NOTE]
-> To run this project on the pre-release software, install npm packages with the following command:
+> To run this project with an early access preview build, install npm packages with the following command:
 >
 > ```
 >	npm install --legacy-peer-deps
@@ -23,7 +23,7 @@ The assistant serves different purposes depending on the used reporting componen
 
 ### Register AI Services
 
-Add the following code to the _Program.cs_ file to register AI services in the application:
+Add the following code to the _Program.cs_ file to register AI services in your application:
 
 ```cs
 using DevExpress.AIIntegration;
@@ -42,7 +42,7 @@ Files to Review:
 
 ### AI Assistant Provider
  
-On the server side, the `AIAssistantProvider` service is used to manage assistants. The `IAIAssistantFactory` interface instance is used to create assistants with the keys provides on the previous steps.
+On the server side, the `AIAssistantProvider` service is used to manage assistants. An `IAIAssistantFactory` interface instance is used to create assistants with the keys from the previous steps.
  
 ``` 
 public interface IAIAssistantProvider {
@@ -60,7 +60,7 @@ Files to Review:
 
 ### Web Document Viewer (Document Assistant)
 
-The image below shows the Web Document Viewer with the integrated AI Assistant and `dxChat` component:
+The following image displays a DevExpress Web Document Viewer with an integrated AI Assistant and `dxChat` component:
 
 ![Web Document Viewer](web-document-viewer.png)
 
@@ -98,7 +98,7 @@ On the `BeforeRender` event, add a new tab used to display user communication wi
 
 #### Get an Assistant
 
-When the document is built, on the `DocumentReady` event, the request is sent to the server to acquire the assistant's ID:
+When the document is built, on the `DocumentReady` event, the request is sent to the server to obtain the assistant's ID:
 
 ```js
 async function DocumentReady(sender, args) {
@@ -110,11 +110,11 @@ async function DocumentReady(sender, args) {
 }
 ```
 
-The [PerformCustomDocumentOperation](https://docs.devexpress.com/XtraReports/js-ASPxClientWebDocumentViewer?p=netframework#js_aspxclientwebdocumentviewer_performcustomdocumentoperation) method is used to export the report to PDF and create the assistant based on the exported document. See the [AIDocumentOperationService.cs]() file for the implementation.
+The [PerformCustomDocumentOperation](https://docs.devexpress.com/XtraReports/js-ASPxClientWebDocumentViewer?p=netframework#js_aspxclientwebdocumentviewer_performcustomdocumentoperation) method is used to export the report to PDF and create the assistant based on the exported document. See [AIDocumentOperationService.cs]() for the implementation details.
 
 #### Get an Answer from the Assistant
 
-After that, every time the user sends a message, the `onMessageSend` event is triggered to pass the request to the assistant:
+Once complete, each time a user sends a message, the `onMessageSend` event is triggered to pass the request to the assistant:
 
 ```js
 //...
@@ -138,7 +138,7 @@ onMessageSend: (e) => {
 // ...
 ```
 
-The `AIController.GetAnswer` is used to get answers from the specified assistant.
+`AIController.GetAnswer` gets answers from the specified assistant.
 
 #### Files to Review:
 
@@ -149,13 +149,13 @@ The `AIController.GetAnswer` is used to get answers from the specified assistant
 
 ### Web Report Designer (User Assistant)
 
-The image below shows the Web Report Designer with the integrated AI Assistant and `dxChat` component:
+The following image shows the Web Report Designer with the integrated AI Assistant and `dxChat` component:
 
 ![Web Report Designer](web-report-designer.png)
 
 #### Add a New Tab
 
-On the `BeforeRender` event, add a new tab used to display user communication with the assistant:
+On the `BeforeRender` event, add a new tab to display user interaction with the assistant:
 
 ```cshtml
 @model DevExpress.XtraReports.Web.ReportDesigner.ReportDesignerModel
@@ -213,7 +213,7 @@ public async Task<string> CreateAssistant(AssistantType assistantType, Stream da
 ```
 #### Get an Answer from the Assistant
 
-After that, every time the user sends a message, the `onMessageSend` event is triggered to pass the request to the assistant:
+Once complete, each time a user sends a message, the `onMessageSend` event is triggered to pass the request to the assistant:
 
 ```js
 //...
@@ -237,7 +237,7 @@ onMessageSend: (e) => {
 // ...
 ```
 
-The `AIController.GetAnswer` is used to get answers from the specified assistant.
+`AIController.GetAnswer` gets answers from the specified assistant.
 
 #### Files to Review:
 
@@ -250,6 +250,7 @@ The `AIController.GetAnswer` is used to get answers from the specified assistant
 
 - [Rich Text Editor and HTML Editor for Blazor - How to integrate AI-powered extensions](https://github.com/DevExpress-Examples/blazor-ai-integration-to-text-editors)
 - [AI Chat for Blazor - How to add DxAIChat component in Blazor, MAUI, WPF, and WinForms applications](https://github.com/DevExpress-Examples/devexpress-ai-chat-samples)
+
 <!-- feedback -->
 ## Does this example address your development requirements/objectives?
 
