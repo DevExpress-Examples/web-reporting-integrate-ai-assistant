@@ -5,17 +5,17 @@
 <!-- default badges end -->
 # Reporting for ASP.NET Core - Integrate AI Assistant based on Azure OpenAI
 
-This example integrates an AI assistant into a DevExpress Reports-powered ASP.NET Core Reporting application. User requests and assistant responses are displayed on-screen using the DevExtreme `dxChat` component.
+This example is an ASP.NET Core application with integrated DevExpress Reports and an AI assistant. User requests and assistant responses are displayed on-screen using the DevExtreme `dxChat` component.
 
-The assistant addresses different usage scenarios based on DevExpress Reports components used:
+The AI assistant's role depends on the associated DevExpress Reports component:
 
-- **Document Assistant**: An assistant for the DevExpress *Web Document Viewer*. This assistant analyzes report content and answers questions related to information within the report.
-- **User Assistant**: An assistant for the DevExpress *Web Report Designer*. This assistant offers usage-related information (how to add a new data source, etc). The information is sourced from [end-user documentation](https://github.com/DevExpress/dotnet-eud) published for DevExpress Web Reporting components.
+- **Data Analysis Assistant**: An assistant for the DevExpress *Web Document Viewer*. This assistant analyzes report content and answers questions related to information within the report.
+- **User Interface Assistant**: An assistant for the DevExpress *Web Report Designer*. This assistant explains how to use the Designer UI to accomplish various tasks. Responses are based on information from [end-user documentation](https://github.com/DevExpress/dotnet-eud) for DevExpress Web Reporting components.
 
-**Please note that initializing the Azure OpenAI Assistant takes time and the new tab with the Document/User Assistant appears once the document scanning is complete on the Microsoft Azure side.**
+**Please note that AI Assistant initialization takes time. The assistant tab appears once Microsoft Azure scans the source document on the server side.**
 
 > [!NOTE]
-> To run this project with an early access preview build, install npm packages with the following command:
+> To run this project with an Early Access Preview build (EAP), install npm packages:
 >
 > ```
 >	npm install --legacy-peer-deps
@@ -23,13 +23,13 @@ The assistant addresses different usage scenarios based on DevExpress Reports co
 
 ## Implementation Details
 
-### Example Common Settings
+### Common Settings
 
 #### Add Personal Keys
 
-You need to create an Azure OpenAI resource in the Azure portal to use Document/User Assistants for DevExpress Reporting. Refer to this help topic for details: [Microsoft - Create and deploy an Azure OpenAI Service resource](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/create-resource?pivots=web-portal).
+You need to create an Azure OpenAI resource in the Azure portal to use AI Assistants for DevExpress Reporting. Refer to the following help topic for details: [Microsoft - Create and deploy an Azure OpenAI Service resource](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/create-resource?pivots=web-portal).
 
-When you have a private endpoint and an API key, open [EnvSettings.cs](./CS/ReportingApp/EnvSettings.cs) and set `OPENAI_ENDPOINT` and `OPENAI_APIKEY` for Azure OpenAI:
+Once you obtain a private endpoint and an API key, open [EnvSettings.cs](./CS/ReportingApp/EnvSettings.cs) and replace `OPENAI_ENDPOINT` and `OPENAI_APIKEY` values in the code below:
 
 ```cs
 public static class EnvSettings {
@@ -41,7 +41,7 @@ public static class EnvSettings {
 
 #### Register AI Services
 
-Add the following code to the _Program.cs_ file to register AI services in your application:
+Register AI services in your application. Add the following code to the _Program.cs_ file:
 
 ```cs
 using DevExpress.AIIntegration;
@@ -60,7 +60,7 @@ Files to Review:
 
 #### AI Assistant Provider
  
-On the server side, the `AIAssistantProvider` service is used to manage assistants. An `IAIAssistantFactory` interface instance is used to create assistants with the keys from the previous steps.
+On the server side, the `AIAssistantProvider` service manages assistants. An `IAIAssistantFactory` instance creates assistants with keys specified in previous steps.
  
 ``` 
 public interface IAIAssistantProvider {
@@ -78,13 +78,13 @@ Files to Review:
 
 ### Web Document Viewer (Document Assistant)
 
-The following image displays a DevExpress Web Document Viewer with an integrated AI Assistant and `dxChat` component:
+The following image displays Web Document Viewer UI implemented in this example. The AI Assistant tab uses a `dxChat` component to display requests and responses:
 
 ![Web Document Viewer](web-document-viewer.png)
 
 #### Add a New Tab
 
-On the `BeforeRender` event, add a new tab used to display user communication with the assistant:
+On the `BeforeRender` event, add a new tab (a container for the assistant interface):
 
 ```cshtml
 @model DevExpress.XtraReports.Web.WebDocumentViewer.WebDocumentViewerModel
@@ -114,9 +114,9 @@ On the `BeforeRender` event, add a new tab used to display user communication wi
 @* ... *@
 ```
 
-#### Get an Assistant
+#### Access the Assistant
 
-When the document is built, on the `DocumentReady` event, the request is sent to the server to obtain the assistant's ID:
+Once the document is ready, the `DocumentReady` event handler sends a request to the server and obtains the assistant's ID:
 
 ```js
 async function DocumentReady(sender, args) {
@@ -128,11 +128,11 @@ async function DocumentReady(sender, args) {
 }
 ```
 
-The [PerformCustomDocumentOperation](https://docs.devexpress.com/XtraReports/js-ASPxClientWebDocumentViewer?p=netframework#js_aspxclientwebdocumentviewer_performcustomdocumentoperation) method is used to export the report to PDF and create the assistant based on the exported document. See [AIDocumentOperationService.cs]() for the implementation details.
+The [PerformCustomDocumentOperation](https://docs.devexpress.com/XtraReports/js-ASPxClientWebDocumentViewer?p=netframework#js_aspxclientwebdocumentviewer_performcustomdocumentoperation) method exports the report to PDF and creates an assistant based on the exported document. See [AIDocumentOperationService.cs]() for implementation details.
 
-#### Get an Answer from the Assistant
+#### Communicate with the Assistant
 
-Once complete, each time a user sends a message, the `onMessageSend` event is triggered to pass the request to the assistant:
+Each time a user sends a message, the `onMessageSend` event handler passes the request to the assistant:
 
 ```js
 //...
@@ -156,7 +156,7 @@ onMessageSend: (e) => {
 // ...
 ```
 
-`AIController.GetAnswer` gets answers from the specified assistant.
+`AIController.GetAnswer` receives answers from the assistant.
 
 #### Files to Review:
 
@@ -167,13 +167,13 @@ onMessageSend: (e) => {
 
 ### Web Report Designer (User Assistant)
 
-The following image shows the Web Report Designer with the integrated AI Assistant and `dxChat` component:
+The following image displays Web Report Designer UI implemented in this example. The AI Assistant tab uses a `dxChat` component to display requests and responses:
 
 ![Web Report Designer](web-report-designer.png)
 
 #### Add a New Tab
 
-On the `BeforeRender` event, add a new tab to display user interaction with the assistant:
+On the `BeforeRender` event, add a new tab (a container for the assistant interface):
 
 ```cshtml
 @model DevExpress.XtraReports.Web.ReportDesigner.ReportDesignerModel
@@ -204,9 +204,9 @@ On the `BeforeRender` event, add a new tab to display user interaction with the 
 @* ... *@
 ```
 
-#### Get an Assistant
+#### Access the Assistant
 
-On the `BeforeRender` event, send the request to `AIController` to create the assistant:
+On the `BeforeRender` event, send a request to `AIController` to create the assistant:
 
 ```js
 async function BeforeRender(sender, args) {
@@ -229,9 +229,9 @@ public async Task<string> CreateAssistant(AssistantType assistantType, Stream da
     return assistantName;
 }
 ```
-#### Get an Answer from the Assistant
+#### Communicate with the Assistant
 
-Once complete, each time a user sends a message, the `onMessageSend` event is triggered to pass the request to the assistant:
+Each time a user sends a message, the `onMessageSend` event handler passes the request to the assistant:
 
 ```js
 //...
@@ -255,7 +255,7 @@ onMessageSend: (e) => {
 // ...
 ```
 
-`AIController.GetAnswer` gets answers from the specified assistant.
+`AIController.GetAnswer` receives answers from the specified assistant.
 
 #### Files to Review:
 
