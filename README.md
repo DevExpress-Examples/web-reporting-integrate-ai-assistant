@@ -40,6 +40,9 @@ public static class EnvSettings {
 }
 ```
 
+Files to Review: 
+- [EnvSettings.cs](./CS/ReportingApp/EnvSettings.cs)
+
 #### Register AI Services
 
 Register AI services in your application. Add the following code to the _Program.cs_ file:
@@ -57,7 +60,6 @@ builder.Services.AddDevExpressAI((config) => {
 
 Files to Review: 
 - [Program.cs](./CS/ReportingApp/Program.cs)
-- [EnvSettings.cs](./CS/ReportingApp/EnvSettings.cs)
 
 #### AI Assistant Provider
  
