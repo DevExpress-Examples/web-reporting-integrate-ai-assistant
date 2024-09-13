@@ -11,7 +11,7 @@ This example is an ASP.NET Core application with integrated DevExpress Reports a
 The AI assistant's role depends on the associated DevExpress Reports component:
 
 - **Data Analysis Assistant**: An assistant for the DevExpress *Web Document Viewer*. This assistant analyzes report content and answers questions related to information within the report.
-- **User Interface Assistant**: An assistant for the DevExpress *Web Report Designer*. This assistant explains how to use the Designer UI to accomplish various tasks. Responses are based on information from [end-user documentation](https://github.com/DevExpress/dotnet-eud) for DevExpress Web Reporting components.
+- **UI Assistant**: An assistant for the DevExpress *Web Report Designer*. This assistant explains how to use the Designer UI to accomplish various tasks. Responses are based on information from [end-user documentation](https://github.com/DevExpress/dotnet-eud) for DevExpress Web Reporting components.
 
 **Please note that AI Assistant initialization takes time. The assistant tab appears once Microsoft Azure scans the source document on the server side.**
 
@@ -79,7 +79,7 @@ Files to Review:
 - [IAIAssistantProvider.cs](./CS/ReportingApp/Services/IAIAssistantProvider.cs)
 
 
-### Web Document Viewer (Document Assistant)
+### Web Document Viewer (Data Analysis Assistant)
 
 The following image displays Web Document Viewer UI implemented in this example. The AI Assistant tab uses a `dxChat` component to display requests and responses:
 
@@ -168,7 +168,7 @@ onMessageSend: (e) => {
 - [AIController.cs](./CS/ReportingApp/Controllers/AIController.cs)
 - [aiIntegration.js](./CS/ReportingApp/wwwroot/js/aiIntegration.js)
 
-### Web Report Designer (User Assistant)
+### Web Report Designer (UI Assistant)
 
 The following image displays Web Report Designer UI implemented in this example. The AI Assistant tab uses a `dxChat` component to display requests and responses:
 
