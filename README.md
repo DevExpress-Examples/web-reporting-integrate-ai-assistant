@@ -30,7 +30,7 @@ The AI assistant's role depends on the associated DevExpress Reports component:
 
 You need to create an Azure OpenAI resource in the Azure portal to use AI Assistants for DevExpress Reporting. Refer to the following help topic for details: [Microsoft - Create and deploy an Azure OpenAI Service resource](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/create-resource?pivots=web-portal).
 
-Once you obtain a private endpoint and an API key, open [EnvSettings.cs](./CS/ReportingApp/EnvSettings.cs) and replace `OPENAI_ENDPOINT` and `OPENAI_APIKEY` values in the code below. `DeploymentName` is a name of your Azure model, for example, `GPT4o`:
+Once you obtain a private endpoint and an API key, register them as `OPENAI_ENDPOINT` and `OPENAI_APIKEY` environment variables. The [EnvSettings.cs](./CS/ReportingApp/EnvSettings.cs) reads these settings. `DeploymentName` in this file is a name of your Azure model, for example, `GPT4o`:
 
 ```cs
 public static class EnvSettings {
