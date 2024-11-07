@@ -1,4 +1,10 @@
-﻿<script type="text/html" id="dxrd-ai-panel">
+﻿<style>
+    .dx-designer .dxrd-ai-assistant .dx-chat-messagebox .dx-texteditor-input {
+        min-height: 40px;
+    }
+</style>
+
+<script type="text/html" id="dxrd-ai-panel">
     <div class="dxrd-ai-assistant dxrd-height-100 dxrd-overflow-hidden" data-bind="visible: active && visible" >
         <!-- ko with: model -->
         <div class="dxrd-width-100 dxrd-height-100" data-bind="dxChat: $data"></div>
