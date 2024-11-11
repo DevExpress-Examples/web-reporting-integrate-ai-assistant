@@ -38,7 +38,7 @@ builder.Services.AddDbContext<ReportDbContext>(options => options.UseSqlite(buil
 builder.Services.AddSingleton<IAIAssistantProvider, AIAssistantProvider>();
 builder.Services.AddScoped<DocumentOperationService, AIDocumentOperationService>();
 builder.Services.AddDevExpressAI((config) => {
-    var client = new AzureOpenAIClient(new Uri(EnvSettings.AzureOpenAIEndpoint), new AzureKeyCredential(EnvSettings.AzureOpenAIKey));
+    var client = new AzureOpenAIClient(new Uri(EnvSettings.AzureOpenAIEndpoint), new System.ClientModel.ApiKeyCredential(EnvSettings.AzureOpenAIKey));
     var deployment = EnvSettings.DeploymentName;
     config.RegisterChatClientOpenAIService(client, deployment);
     config.RegisterOpenAIAssistants(client, deployment);
