@@ -14,7 +14,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.IO;
+using Azure;
 using DevExpress.AIIntegration;
+using Microsoft.Extensions.AI;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDevExpressControls();
@@ -32,15 +34,18 @@ builder.Services.ConfigureReportingServices(configurator => {
         viewerConfigurator.RegisterConnectionProviderFactory<CustomSqlDataConnectionProviderFactory>();
     });
 });
-var azureOpenAIClient = new AzureOpenAIClient(new Uri(EnvSettings.AzureOpenAIEndpoint),
-    new System.ClientModel.ApiKeyCredential(EnvSettings.AzureOpenAIKey));
-    
-var chatClient = azureOpenAIClient.GetChatClient(EnvSettings.DeploymentName);
 
 builder.Services.AddDbContext<ReportDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("ReportsDataConnectionString")));
+builder.Services.AddScoped<DocumentOperationService, AIDocumentOperationService>();
+
+var azureOpenAIClient = new AzureOpenAIClient(
+    new Uri(EnvSettings.AzureOpenAIEndpoint),
+    new AzureKeyCredential(EnvSettings.AzureOpenAIKey));
+    
+var chatClient = azureOpenAIClient.AsChatClient(EnvSettings.DeploymentName);
+
 builder.Services.AddSingleton(chatClient);
 builder.Services.AddSingleton<IAIAssistantProvider, AIAssistantProvider>();
-builder.Services.AddScoped<DocumentOperationService, AIDocumentOperationService>();
 builder.Services.AddDevExpressAI(config =>
 {
     config.RegisterOpenAIAssistants(azureOpenAIClient, EnvSettings.DeploymentName);
