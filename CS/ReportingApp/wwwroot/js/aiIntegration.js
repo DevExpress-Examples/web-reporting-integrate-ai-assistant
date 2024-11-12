@@ -10,6 +10,9 @@ function createAssistantTab(chatId) {
     const model = {
         title: 'AI Assistant',
         chatId: chatId,
+        showAvatar: false,
+        showUserName: false,
+        showMessageTimestamp: false,
         user: {
             id: 1,
         },

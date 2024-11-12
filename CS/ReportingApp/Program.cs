@@ -1,6 +1,4 @@
-using Azure;
 using Azure.AI.OpenAI;
-using DevExpress.AIIntegration;
 using DevExpress.AspNetCore;
 using DevExpress.AspNetCore.Reporting;
 using DevExpress.Security.Resources;
@@ -10,13 +8,13 @@ using ReportingApp;
 using ReportingApp.Data;
 using ReportingApp.Services;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.IO;
+using DevExpress.AIIntegration;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDevExpressControls();
@@ -34,14 +32,18 @@ builder.Services.ConfigureReportingServices(configurator => {
         viewerConfigurator.RegisterConnectionProviderFactory<CustomSqlDataConnectionProviderFactory>();
     });
 });
+var azureOpenAIClient = new AzureOpenAIClient(new Uri(EnvSettings.AzureOpenAIEndpoint),
+    new System.ClientModel.ApiKeyCredential(EnvSettings.AzureOpenAIKey));
+    
+var chatClient = azureOpenAIClient.GetChatClient(EnvSettings.DeploymentName);
+
 builder.Services.AddDbContext<ReportDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("ReportsDataConnectionString")));
+builder.Services.AddSingleton(chatClient);
 builder.Services.AddSingleton<IAIAssistantProvider, AIAssistantProvider>();
 builder.Services.AddScoped<DocumentOperationService, AIDocumentOperationService>();
-builder.Services.AddDevExpressAI((config) => {
-    var client = new AzureOpenAIClient(new Uri(EnvSettings.AzureOpenAIEndpoint), new System.ClientModel.ApiKeyCredential(EnvSettings.AzureOpenAIKey));
-    var deployment = EnvSettings.DeploymentName;
-    config.RegisterChatClientOpenAIService(client, deployment);
-    config.RegisterOpenAIAssistants(client, deployment);
+builder.Services.AddDevExpressAI(config =>
+{
+    config.RegisterOpenAIAssistants(azureOpenAIClient, EnvSettings.DeploymentName);
 });
 
 var app = builder.Build();
@@ -65,6 +67,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
+string contentPath = app.Environment.ContentRootPath;
+AppDomain.CurrentDomain.SetData("DataDirectory", contentPath);
 
 app.UseAuthorization();
 app.MapControllerRoute(
