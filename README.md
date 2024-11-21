@@ -15,18 +15,14 @@ The AI assistant's role depends on the associated DevExpress Reports component:
 
 **Please note that AI Assistant initialization takes time. The assistant tab appears once Microsoft Azure scans the source document on the server side.**
 
-> [!NOTE]
-> To run this project with an Early Access Preview build (EAP), install npm packages:
->
-> ```
->	npm install --legacy-peer-deps
-> ```
-
 ## Implementation Details
 
 ### Common Settings
 
 #### Add Personal Keys
+
+> [!NOTE]  
+> DevExpress AI-powered extensions follow the "bring your own key" principle. DevExpress does not offer a REST API and does not ship any built-in LLMs/SLMs. You need an active Azure/Open AI subscription to obtain the REST API endpoint, key, and model deployment name. These variables must be specified at application startup to register AI clients and enable DevExpress AI-powered Extensions in your application.
 
 You need to create an Azure OpenAI resource in the Azure portal to use AI Assistants for DevExpress Reporting. Refer to the following help topic for details: [Microsoft - Create and deploy an Azure OpenAI Service resource](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/create-resource?pivots=web-portal).
 
@@ -34,9 +30,9 @@ Once you obtain a private endpoint and an API key, register them as `OPENAI_ENDP
 
 ```cs
 public static class EnvSettings {
-        public static string AzureOpenAIEndpoint { get { return Environment.GetEnvironmentVariable("OPENAI_ENDPOINT"); } }
-        public static string AzureOpenAIKey { get { return Environment.GetEnvironmentVariable("OPENAI_APIKEY"); } }
-        public static string DeploymentName { get { return "GPT4o"; } }
+    public static string AzureOpenAIEndpoint { get { return Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT"); } }
+    public static string AzureOpenAIKey { get { return Environment.GetEnvironmentVariable("AZURE_OPENAI_APIKEY"); } }
+    public static string DeploymentName { get { return "GPT4o"; } }
 }
 ```
 
@@ -49,12 +45,19 @@ Register AI services in your application. Add the following code to the _Program
 
 ```cs
 using DevExpress.AIIntegration;
+using Azure;
+using Azure.AI.OpenAI;
+using Microsoft.Extensions.AI;
+using System;
 // ...
-builder.Services.AddDevExpressAI((config) => {
-    var client = new AzureOpenAIClient(new Uri(EnvSettings.AzureOpenAIEndpoint), new AzureKeyCredential(EnvSettings.AzureOpenAIKey));
-    var deployment = EnvSettings.DeploymentName;
-    config.RegisterChatClientOpenAIService(client, deployment);
-    config.RegisterOpenAIAssistants(client, deployment);
+var azureOpenAIClient = new AzureOpenAIClient(
+    new Uri(EnvSettings.AzureOpenAIEndpoint),
+    new AzureKeyCredential(EnvSettings.AzureOpenAIKey));
+    
+var chatClient = azureOpenAIClient.AsChatClient(EnvSettings.DeploymentName);
+builder.Services.AddDevExpressAI(config =>
+{
+    config.RegisterOpenAIAssistants(azureOpenAIClient, EnvSettings.DeploymentName);
 });
 ```
 
@@ -266,6 +269,10 @@ onMessageSend: (e) => {
 - [AIDocumentOperationService.cs](./CS/ReportingApp/Services/AIDocumentOperationService.cs)
 - [AIController.cs](./CS/ReportingApp/Controllers/AIController.cs)
 - [aiIntegration.js](./CS/ReportingApp/wwwroot/js/aiIntegration.js)
+
+## Documentation 
+
+- [AI-powered Extensions for DevExpress Reporting](https://docs.devexpress.com/XtraReports/405211/ai-powered-functionality/ai-for-devexpress-reporting?v=24.2)
 
 ## More Examples
 
