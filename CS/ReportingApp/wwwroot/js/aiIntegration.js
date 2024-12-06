@@ -1,8 +1,8 @@
 ﻿function normilizeAIResponse(text) {
     text = text.replace(/【\d+:\d+†[^\】]+】/g, "");
-    const html = marked.parse(text)
-    if (/^<p>.*<\/p>\s*$/.test(html))
-        return text;
+    let html = marked.parse(text);
+    if (/<p>\.\s*<\/p>\s*$/.test(html))
+        html = html.replace(/<p>\.\s*<\/p>\s*$/, "")
     return html;
 }
 

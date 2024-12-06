@@ -2,79 +2,113 @@
 for details on configuring this project to bundle and minify static web assets. */
 
 .dxrd-ai-assistant .dx-chat {
-    width: 100%;
-    height: 100%;
-    border-radius: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+
+.dx-chat-messagelist-content .dx-chat-messagegroup-alignment-start, 
+.dx-chat-messagelist-content .dx-chat-last-messagegroup-alignment-start {
+  column-gap: 0;
+}
+
+.dx-chat-messagebubble-content li > ul {
+  margin-bottom: 0;
+}
+.dx-chat-messagebubble-content ol,
+.dx-chat-messagebubble-content ul {
+  white-space: normal;
+  margin-left: -1rem;
+  margin-bottom: -1rem;
+}
+.dx-chat-messagebubble-content p {
+ margin-bottom: 0; 
+}
+.dx-chat-messagebubble-content h1,
+.dx-chat-messagebubble-content h2,
+.dx-chat-messagebubble-content h3,
+.dx-chat-messagebubble-content h4,
+.dx-chat-messagebubble-content h5,
+.dx-chat-messagebubble-content h6 {
+  font-size: revert;
+  font-weight: revert;
+}
+.dx-chat-messagebubble-content > div > p:first-child {
+  margin-top: 0;
+}
+
+.dx-chat-messagebubble-content > div > p:last-child {
+  margin-bottom: 0;
 }
 
 a.navbar-brand {
-    white-space: normal;
-    text-align: center;
-    word-break: break-all;
+  white-space: normal;
+  text-align: center;
+  word-break: break-all;
 }
 
 /* Provide sufficient contrast against white background */
 a {
-  color: #0366d6;
+color: #0366d6;
 }
 
 .btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+color: #fff;
+background-color: #1b6ec2;
+border-color: #1861ac;
 }
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+color: #fff;
+background-color: #1b6ec2;
+border-color: #1861ac;
 }
 
 /* Sticky footer styles
 -------------------------------------------------- */
 html {
-  font-size: 14px;
+font-size: 14px;
 }
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+html {
+  font-size: 16px;
+}
 }
 
 .border-top {
-  border-top: 1px solid #e5e5e5;
+border-top: 1px solid #e5e5e5;
 }
 .border-bottom {
-  border-bottom: 1px solid #e5e5e5;
+border-bottom: 1px solid #e5e5e5;
 }
 
 .box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
 }
 
 button.accept-policy {
-  font-size: 1rem;
-  line-height: inherit;
+font-size: 1rem;
+line-height: inherit;
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+position: relative;
+min-height: 100%;
 }
 
 .container-fluid {
-    flex-grow: 1;
-    padding: 0;
+  flex-grow: 1;
+  padding: 0;
 }
 
 .container-fluid main {
-    height: 100%;
+  height: 100%;
 }
 
 .footer {
-    bottom: 0;
-    width: 100%;
-    white-space: nowrap;
-    line-height: 50px;
-    height: 60px;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 50px;
+  height: 60px;
 }
