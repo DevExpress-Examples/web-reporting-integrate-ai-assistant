@@ -6,7 +6,7 @@
 <!-- default badges end -->
 # Reporting for ASP.NET Core - Integrate AI Assistant based on Azure OpenAI
 
-This example is an ASP.NET Core application with integrated DevExpress Reports and an AI assistant. User requests and assistant responses are displayed on-screen using the DevExtreme `dxChat` component.
+This example is an ASP.NET Core application with integrated DevExpress Reports and an AI assistant. User requests and assistant responses are displayed on-screen using the DevExtreme [`dxChat`](https://js.devexpress.com/jQuery/Documentation/24_2/ApiReference/UI_Components/dxChat/) component.
 
 The AI assistant's role depends on the associated DevExpress Reports component:
 
@@ -26,7 +26,7 @@ The AI assistant's role depends on the associated DevExpress Reports component:
 
 You need to create an Azure OpenAI resource in the Azure portal to use AI Assistants for DevExpress Reporting. Refer to the following help topic for details: [Microsoft - Create and deploy an Azure OpenAI Service resource](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/create-resource?pivots=web-portal).
 
-Once you obtain a private endpoint and an API key, register them as `OPENAI_ENDPOINT` and `OPENAI_APIKEY` environment variables. The [EnvSettings.cs](./CS/ReportingApp/EnvSettings.cs) reads these settings. `DeploymentName` in this file is a name of your Azure model, for example, `GPT4o`:
+Once you obtain a private endpoint and an API key, register them as `AZURE_OPENAI_ENDPOINT` and `AZURE_OPENAI_APIKEY` environment variables. The [EnvSettings.cs](./CS/ReportingApp/EnvSettings.cs) reads these settings. `DeploymentName` in this file is a name of your Azure model, for example, `GPT4o`:
 
 ```cs
 public static class EnvSettings {
@@ -134,16 +134,17 @@ async function DocumentReady(sender, args) {
 }
 ```
 
-The [PerformCustomDocumentOperation](https://docs.devexpress.com/XtraReports/js-ASPxClientWebDocumentViewer?p=netframework#js_aspxclientwebdocumentviewer_performcustomdocumentoperation) method exports the report to PDF and creates an assistant based on the exported document. See [AIDocumentOperationService.cs]() for implementation details.
+The [`PerformCustomDocumentOperation`](https://docs.devexpress.com/XtraReports/js-ASPxClientWebDocumentViewer?p=netframework#js_aspxclientwebdocumentviewer_performcustomdocumentoperation) method exports the report to PDF and creates an assistant based on the exported document. See [AIDocumentOperationService.cs](./CS/ReportingApp/Services/AIDocumentOperationService.cs) for implementation details.
 
 #### Communicate with the Assistant
 
-Each time a user sends a message, the `onMessageSend` event handler passes the request to the assistant:
+Each time a user sends a message, the [`onMessageEntered`](https://js.devexpress.com/jQuery/Documentation/24_2/ApiReference/UI_Components/dxChat/Configuration/#onMessageEntered) event handler passes the request to the assistant:
 
 ```js
 //...
-onMessageSend: (e) => {
+onMessageEntered: (e) => {
     const instance = e.component;
+    instance.renderMessage(e.message);
     const formData = new FormData();
     formData.append('text', e.message.text);
     formData.append('chatId', model.chatId);
@@ -237,12 +238,13 @@ public async Task<string> CreateAssistant(AssistantType assistantType, Stream da
 ```
 #### Communicate with the Assistant
 
-Each time a user sends a message, the `onMessageSend` event handler passes the request to the assistant:
+Each time a user sends a message, the [`onMessageEntered`](https://js.devexpress.com/jQuery/Documentation/24_2/ApiReference/UI_Components/dxChat/Configuration/#onMessageEntered) event handler passes the request to the assistant:
 
 ```js
 //...
-onMessageSend: (e) => {
+onMessageEntered: (e) => {
     const instance = e.component;
+    instance.renderMessage(e.message);
     const formData = new FormData();
     formData.append('text', e.message.text);
     formData.append('chatId', model.chatId);
@@ -276,10 +278,11 @@ onMessageSend: (e) => {
 
 ## More Examples
 
+- [DevExtreme Chat - Getting Started](https://github.com/DevExpress-Examples/devextreme-getting-started-with-chat)
 - [Reporting for ASP.NET Core - Summarize and Translate DevExpress Reports Using Azure OpenAI](https://github.com/DevExpress-Examples/reporting-asp-net-core-ai-summarize-and-translate)
 - [Reporting for Blazor - Integrate AI-powered Summarize and Translate Features based on Azure OpenAI](https://github.com/DevExpress-Examples/blazor-reporting-ai/)
-- [Rich Text Editor and HTML Editor for Blazor - How to integrate AI-powered extensions](https://github.com/DevExpress-Examples/blazor-ai-integration-to-text-editors)
 - [AI Chat for Blazor - How to add DxAIChat component in Blazor, MAUI, WPF, and WinForms applications](https://github.com/DevExpress-Examples/devexpress-ai-chat-samples)
+- [Rich Text Editor and HTML Editor for Blazor - How to integrate AI-powered extensions](https://github.com/DevExpress-Examples/blazor-ai-integration-to-text-editors)
 
 <!-- feedback -->
 ## Does this example address your development requirements/objectives?
