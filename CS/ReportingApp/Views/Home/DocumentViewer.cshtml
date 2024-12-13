@@ -2,11 +2,12 @@
 @await Html.PartialAsync("_AILayout")
 <script>
     let aiTab;
-    function BeforeRender(sender, args) {
+    async function BeforeRender(sender, args) {
         const previewModel = args;
         const reportPreview = previewModel.reportPreview;
-
-        aiTab = createAssistantTab();
+        const result = await fetch(`/AI/CreateUserAssistant`);
+        const chatId = await result.text();
+        aiTab = createAssistantTab(chatId);
         const model = aiTab.model;
         previewModel.tabPanel.tabs.push(aiTab);
         reportPreview.events.on('documentBuildingChanged', (args) => {
@@ -27,7 +28,7 @@
 
     async function DocumentReady(sender, args) {
         const response = await sender.PerformCustomDocumentOperation(null, true);
-        if (response.customData) {
+        if (response.customData && aiTab?.model) {
             aiTab.model.chatId = response.customData;
             aiTab.visible = true;
         }
