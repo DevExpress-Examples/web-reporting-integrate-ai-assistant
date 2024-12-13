@@ -112,3 +112,9 @@ min-height: 100%;
   line-height: 50px;
   height: 60px;
 }
+
+.dx-chat-messagegroup-alignment-start:last-child .dx-chat-messagebubble:last-child .dx-bubble-button-containder {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+}
