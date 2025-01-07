@@ -61,6 +61,9 @@ builder.Services.AddDevExpressAI(config =>
 });
 ```
 
+>[!NOTE]
+> The availability of Azure Open AI Assistants depends on region. For additional guidance in this regard, refer to the following document: [Azure OpenAI Service models -- Assistants (Preview)](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models?tabs=global-standard%2Cstandard-chat-completions#assistants-preview).
+
 Files to Review: 
 - [Program.cs](./CS/ReportingApp/Program.cs)
 
@@ -127,7 +130,7 @@ Once the document is ready, the `DocumentReady` event handler sends a request to
 ```js
 async function DocumentReady(sender, args) {
     const response = await sender.PerformCustomDocumentOperation(null, true);
-    if (response.customData) {
+    if (response.customData && aiTab?.model) {
         aiTab.model.chatId = response.customData;
         aiTab.visible = true;
     }
@@ -142,23 +145,31 @@ Each time a user sends a message, the [`onMessageEntered`](https://js.devexpress
 
 ```js
 //...
-onMessageEntered: (e) => {
-    const instance = e.component;
-    instance.renderMessage(e.message);
+async function getAIResponse(text, id) {
     const formData = new FormData();
-    formData.append('text', e.message.text);
-    formData.append('chatId', model.chatId);
-    fetch(`/AI/GetAnswer`, {
+    formData.append('text', text);
+    formData.append('chatId', id);
+    lastUserQuery = text;
+    const response = await fetch(`/AI/GetAnswer`, {
         method: 'POST',
         body: formData
-    }).then((x) => {
-        x.text().then((res) => {
-            instance.renderMessage({
-                text: res,
-                author: { id: 'Assistant' }
-            }, { id: 'Assistant' });
-        });
     });
+    return await response.text();
+}
+// ...
+function RenderAssistantMessage(instance, message) {
+    instance.option({ typingUsers: [] });
+    instance.renderMessage({ timestamp: new Date(), text: message, author: assistant.name, id: assistant.id });
+}
+// ...
+onMessageEntered: async (e) => {
+    const instance = e.component;
+    instance.renderMessage(e.message);
+    instance.option({ typingUsers: [assistant] });
+    const userInput = e.message.text;
+
+    var response = await getAIResponse(userInput, assistant.id);
+    RenderAssistantMessage(instance, response);
 }
 // ...
 ```
@@ -242,23 +253,31 @@ Each time a user sends a message, the [`onMessageEntered`](https://js.devexpress
 
 ```js
 //...
-onMessageEntered: (e) => {
-    const instance = e.component;
-    instance.renderMessage(e.message);
+async function getAIResponse(text, id) {
     const formData = new FormData();
-    formData.append('text', e.message.text);
-    formData.append('chatId', model.chatId);
-    fetch(`/AI/GetAnswer`, {
+    formData.append('text', text);
+    formData.append('chatId', id);
+    lastUserQuery = text;
+    const response = await fetch(`/AI/GetAnswer`, {
         method: 'POST',
         body: formData
-    }).then((x) => {
-        x.text().then((res) => {
-            instance.renderMessage({
-                text: res,
-                author: { id: 'Assistant' }
-            }, { id: 'Assistant' });
-        });
     });
+    return await response.text();
+}
+// ...
+function RenderAssistantMessage(instance, message) {
+    instance.option({ typingUsers: [] });
+    instance.renderMessage({ timestamp: new Date(), text: message, author: assistant.name, id: assistant.id });
+}
+// ...
+onMessageEntered: async (e) => {
+    const instance = e.component;
+    instance.renderMessage(e.message);
+    instance.option({ typingUsers: [assistant] });
+    const userInput = e.message.text;
+
+    var response = await getAIResponse(userInput, assistant.id);
+    RenderAssistantMessage(instance, response);
 }
 // ...
 ```
