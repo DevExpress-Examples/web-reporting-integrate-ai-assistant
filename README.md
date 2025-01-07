@@ -89,7 +89,7 @@ Files to Review:
 
 The following image displays Web Document Viewer UI implemented in this example. The AI Assistant tab uses a `dxChat` component to display requests and responses:
 
-![Web Document Viewer](web-document-viewer.png)
+![Web Document Viewer](images/web-document-viewer.png)
 
 #### Add a New Tab
 
@@ -187,7 +187,7 @@ onMessageEntered: async (e) => {
 
 The following image displays Web Report Designer UI implemented in this example. The AI Assistant tab uses a `dxChat` component to display requests and responses:
 
-![Web Report Designer](web-report-designer.png)
+![Web Report Designer](images/web-report-designer.png)
 
 #### Add a New Tab
 
