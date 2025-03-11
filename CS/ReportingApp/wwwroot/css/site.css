@@ -6,7 +6,9 @@ for details on configuring this project to bundle and minify static web assets. 
   height: 100%;
   border-radius: 0;
 }
-
+.dx-chat-messagebubble-content {
+    user-select: text;
+}
 .dx-chat-messagelist-content .dx-chat-messagegroup-alignment-start, 
 .dx-chat-messagelist-content .dx-chat-last-messagegroup-alignment-start {
   column-gap: 0;
