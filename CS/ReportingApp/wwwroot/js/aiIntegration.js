@@ -11,30 +11,6 @@
         id: 'user',
     };
 
-    let errorList = [];
-    let component = undefined;
-    async function _tryFetch(fetchAction, message) {
-        try {
-            return await fetchAction();
-        }
-        catch(error) {
-            this._handleError({ message: error.message, code: message });
-        }
-    }
-
-    function _handleError(error) {
-        const id = "id" + Math.random().toString(16).slice(2)
-        setTimeout(() => {
-            errorList = errorList.filter(err => err.id !== id);
-            component.option('alerts', errorList);
-        }, 10000);
-        errorList.push({
-            id: id,
-            message: `${error.code} - ${error.message}`
-        });
-        component.option('alerts', errorList);
-    }
-
     function normalizeAIResponse(text) {
         text = text.replace(/【\d+:\d+†[^\】]+】/g, "");
         let html = marked.parse(text);
