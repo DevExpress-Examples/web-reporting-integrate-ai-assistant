@@ -44,6 +44,9 @@ Files to Review:
 
 #### Register AI Services
 
+>[!NOTE]
+> The availability of Azure Open AI Assistants depends on region. For additional guidance in this regard, refer to the following document: [Azure OpenAI Service models -- Assistants (Preview)](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models?tabs=global-standard%2Cstandard-chat-completions#assistants-preview).
+
 Register AI services in your application. Add the following code to the _Program.cs_ file:
 
 ```cs
@@ -63,9 +66,8 @@ builder.Services.AddDevExpressAI(config =>
     config.RegisterOpenAIAssistants(azureOpenAIClient, EnvSettings.DeploymentName);
 });
 ```
-
->[!NOTE]
-> The availability of Azure Open AI Assistants depends on region. For additional guidance in this regard, refer to the following document: [Azure OpenAI Service models -- Assistants (Preview)](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models?tabs=global-standard%2Cstandard-chat-completions#assistants-preview).
+> [!Important]
+> We use version **9.0.0-preview.9.24556.5** of the _Microsoft.Extensions.AI.*_ libraries in our source code. We do not guarantee compatibility or correct operation with higher versions.
 
 Files to Review: 
 - [Program.cs](./CS/ReportingApp/Program.cs)
@@ -74,7 +76,7 @@ Files to Review:
  
 On the server side, the `AIAssistantProvider` service manages assistants. An `IAIAssistantFactory` instance creates assistants with keys specified in previous steps.
  
-``` 
+```cs
 public interface IAIAssistantProvider {
     IAIAssistant GetAssistant(string assistantName);
     Task<string> CreateAssistant(AssistantType assistantType, Stream data);
