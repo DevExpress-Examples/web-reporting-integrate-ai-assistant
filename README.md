@@ -15,6 +15,9 @@ The AI assistant's role depends on the associated DevExpress Reports component:
 
 **Please note that AI Assistant initialization takes time. The assistant tab appears once Microsoft Azure scans the source document on the server side.**
 
+> [!Important]
+> In v24.2.6+, we use version **9.3.0-preview.1.25161.3** of the _Microsoft.Extensions.AI.*_ libraries in our source code. We do not guarantee compatibility or correct operation with higher versions.
+
 ## Implementation Details
 
 ### Common Settings
