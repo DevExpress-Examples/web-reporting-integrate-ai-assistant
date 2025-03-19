@@ -15,8 +15,7 @@ const createAssistantTab = (function() {
     async function _tryFetch(instance, fetchAction, message) {
         try {
             return await fetchAction();
-        }
-        catch(error) {
+        } catch(error) {
             _handleError(instance, { message: error.message, code: message });
         }
     }
