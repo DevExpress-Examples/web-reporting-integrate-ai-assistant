@@ -13,6 +13,13 @@ The AI assistant's role depends on the associated DevExpress Reports component:
 - **Data Analysis Assistant**: An assistant for the DevExpress *Web Document Viewer*. This assistant analyzes report content and answers questions related to information within the report.
 - **UI Assistant**: An assistant for the DevExpress *Web Report Designer*. This assistant explains how to use the Designer UI to accomplish various tasks. Responses are based on information from [end-user documentation](https://github.com/DevExpress/dotnet-eud) for DevExpress Web Reporting components.
 
+> [!Note]
+> We use the following versions of the `Microsoft.Extensions.AI.*` libraries in our source code:
+>
+> v24.2.6+ | **9.3.0-preview.1.25161.3**
+>
+> We do not guarantee compatibility or correct operation with higher versions. Refer to the following announcement for additional information: [Microsoft.Extensions.AI.Abstractions NuGet Package Version Upgrade in v24.2.6](https://community.devexpress.com/blogs/news/archive/2025/03/12/important-announcement-microsoft-extensions-ai-abstractions-nuget-package-version-upgrade.aspx).
+
 **Please note that AI Assistant initialization takes time. The assistant tab appears once Microsoft Azure scans the source document on the server side.**
 
 ## Implementation Details
@@ -63,9 +70,6 @@ builder.Services.AddDevExpressAI(config =>
     config.RegisterOpenAIAssistants(azureOpenAIClient, EnvSettings.DeploymentName);
 });
 ```
-
-> [!Important]
-> In v24.2.6+, we use version **9.3.0-preview.1.25161.3** of the _Microsoft.Extensions.AI.*_ libraries in our source code. We do not guarantee compatibility or correct operation with higher versions.
 
 Files to Review: 
 - [Program.cs](./CS/ReportingApp/Program.cs)
