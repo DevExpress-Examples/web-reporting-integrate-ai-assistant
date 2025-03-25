@@ -116,17 +116,23 @@ const createAssistantTab = (function() {
                     stylingMode: 'text',
                     onClick: () => refreshAnswer(data.component)
                 });
-                buttonContainer.appendChild(refreshBtnElement);
-                lastRefreshButton = refreshBtnElement;
+                if(data.component.option('items').at(-1).author === assistant.name) {
+                    buttonContainer.appendChild(refreshBtnElement);
+                    lastRefreshButton = refreshBtnElement;
+                }
                 container.appendChild(buttonContainer);
             },
             onMessageEntered: async (e) => {
+                lastRefreshButton?.remove();
                 const instance = e.component;
                 instance.option('alerts', []);
                 instance.renderMessage(e.message);
                 instance.option({ typingUsers: [assistant] });
                 const userInput = e.message.text;
-                const response = await getAIResponse(instance, userInput, assistant.id ?? model.chatId);
+                if(!assistant.id && model.chatId) {
+                    assistant.id = model.chatId;
+                }
+                const response = await getAIResponse(instance, userInput, assistant.id);
                 RenderAssistantMessage(instance, response);
             }
         };
