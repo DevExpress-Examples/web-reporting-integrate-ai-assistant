@@ -1,7 +1,7 @@
-const createAssistantTab = (function() {
+﻿const createAssistantTab = (function() {
 
     let lastUserQuery;
-    let errorList = [];
+
     const assistant = {
         id: 'assistant',
         name: 'Virtual Assistant',
@@ -10,28 +10,6 @@ const createAssistantTab = (function() {
     const user = {
         id: 'user',
     };
-
-
-    async function _tryFetch(instance, fetchAction, message) {
-        try {
-            return await fetchAction();
-        } catch(error) {
-            _handleError(instance, { message: error.message, code: message });
-        }
-    }
-
-    function _handleError(instance, error) {
-        const id = "id" + Math.random().toString(16).slice(2)
-        setTimeout(() => {
-            errorList = errorList.filter(err => err.id !== id);
-            instance.option('alerts', errorList);
-        }, 10000);
-        errorList.push({
-            id: id,
-            message: `${error.code} - ${error.message}`
-        });
-        instance.option('alerts', errorList);
-    }
 
     function normalizeAIResponse(text) {
         text = text.replace(/【\d+:\d+†[^\】]+】/g, "");
@@ -45,23 +23,16 @@ const createAssistantTab = (function() {
         navigator.clipboard.writeText(text);
     }
 
-    async function getAIResponse(instance, text, id) {
+    async function getAIResponse(text, id) {
         const formData = new FormData();
         formData.append('text', text);
         formData.append('chatId', id);
         lastUserQuery = text;
-        return _tryFetch(instance, async () => {
-            const response = await fetch('/AI/GetAnswer', {
-                method: 'POST',
-                body: formData
-            });
-
-            if(!response.ok) {
-                _handleError(instance, { code: `${response.status}`, message: `Internal server error` });
-                return;
-            }
-            return await response.text();
-        }, 'GetAnswer');
+        const response = await fetch(`/AI/GetAnswer`, {
+            method: 'POST',
+            body: formData
+        });
+        return await response.text();
     }
 
     function RenderAssistantMessage(instance, message) {
@@ -74,7 +45,7 @@ const createAssistantTab = (function() {
         const newItems = items.slice(0, -1);
         instance.option({ items: newItems });
         instance.option({ typingUsers: [assistant] });
-        const aiResponse = await getAIResponse(instance, lastUserQuery, assistant.id);
+        const aiResponse = await getAIResponse(lastUserQuery, assistant.id);
         setTimeout(() => {
             instance.option({ typingUsers: [] });
             RenderAssistantMessage(instance, aiResponse);
@@ -82,7 +53,6 @@ const createAssistantTab = (function() {
     }
 
     function createAssistantTab(chatId) {
-        let lastRefreshButton;
         assistant.id = chatId;
         const model = {
             title: 'AI Assistant',
@@ -102,7 +72,6 @@ const createAssistantTab = (function() {
 
                 const buttonContainer = document.createElement('div');
                 buttonContainer.classList.add('dx-bubble-button-container');
-                lastRefreshButton?.remove();
                 const copyBtnElement = document.createElement('div');
                 new DevExpress.ui.dxButton(copyBtnElement, {
                     icon: 'copy',
@@ -116,17 +85,22 @@ const createAssistantTab = (function() {
                     stylingMode: 'text',
                     onClick: () => refreshAnswer(data.component)
                 });
-                buttonContainer.appendChild(refreshBtnElement);
-                lastRefreshButton = refreshBtnElement;
+                if(data.component.option('items').at(-1).author === assistant.name) {
+                    buttonContainer.appendChild(refreshBtnElement);
+                    lastRefreshButton = refreshBtnElement;
+                }
                 container.appendChild(buttonContainer);
             },
             onMessageEntered: async (e) => {
+                lastRefreshButton?.remove();
                 const instance = e.component;
-                instance.option('alerts', []);
                 instance.renderMessage(e.message);
                 instance.option({ typingUsers: [assistant] });
                 const userInput = e.message.text;
-                const response = await getAIResponse(instance, userInput, assistant.id ?? model.chatId);
+                if(!assistant.id && model.chatId) {
+                    assistant.id = model.chatId;
+                }
+                const response = await getAIResponse(instance, userInput, assistant.id);
                 RenderAssistantMessage(instance, response);
             }
         };
