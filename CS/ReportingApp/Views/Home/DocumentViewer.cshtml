@@ -5,9 +5,7 @@
     async function BeforeRender(sender, args) {
         const previewModel = args;
         const reportPreview = previewModel.reportPreview;
-        const result = await fetch(`/AI/CreateUserAssistant`);
-        const chatId = await result.text();
-        aiTab = createAssistantTab(chatId);
+        aiTab = createAssistantTab();
         const model = aiTab.model;
         previewModel.tabPanel.tabs.push(aiTab);
         reportPreview.events.on('documentBuildingChanged', (args) => {
