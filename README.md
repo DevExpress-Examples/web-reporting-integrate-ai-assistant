@@ -18,7 +18,7 @@ The AI assistant's role depends on the associated DevExpress Reports component:
 > [!Note]
 > We use the following versions of the `Microsoft.Extensions.AI.*` libraries in our source code:
 >
-> v25.1.2+ | **9.4.0-preview.1.25207.5**
+> v25.1.2+ | **9.4.3-preview.1.25230.7**
 >
 > We do not guarantee compatibility or correct operation with higher versions.
 
