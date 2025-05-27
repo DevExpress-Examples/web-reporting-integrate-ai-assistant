@@ -3,14 +3,10 @@ using System.IO;
 using System.Threading.Tasks;
 
 namespace ReportingApp.Services {
-    public enum AssistantType {
-        DocumentAssistant,
-        UserAssistant
-    }
     public interface IAIAssistantProvider {
         IAIAssistant GetAssistant(string assistantName);
-        Task<string> CreateAssistant(AssistantType assistantType, Stream data);
-        Task<string> CreateAssistant(AssistantType assistantType);
+        Task<string> CreateDocumentAssistant(Stream data);
+        Task<string> CreateUserAssistant();
         void DisposeAssistant(string assistantName);
     }
 }

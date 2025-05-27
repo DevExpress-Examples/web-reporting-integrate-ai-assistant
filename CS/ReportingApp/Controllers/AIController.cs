@@ -11,8 +11,7 @@ namespace ReportingApp.Controllers {
         }
 
         public async Task<string> CreateUserAssistant() {
-            var assistantName = await AIAssistantProvider.CreateAssistant(AssistantType.UserAssistant);
-            return assistantName;
+            return await AIAssistantProvider.CreateUserAssistant();
         }
 
         public async Task<string> GetAnswer([FromForm] string chatId, [FromForm] string text) {

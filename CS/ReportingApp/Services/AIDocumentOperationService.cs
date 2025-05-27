@@ -18,7 +18,7 @@ namespace ReportingApp.Services {
         public override async Task<DocumentOperationResponse> PerformOperationAsync(DocumentOperationRequest request, PrintingSystemBase printingSystem, PrintingSystemBase printingSystemWithEditingFields) {
             using(var stream = new MemoryStream()) {
                 printingSystem.ExportToPdf(stream, printingSystem.ExportOptions.Pdf);
-                var assistantName = await AIAssistantProvider.CreateAssistant(AssistantType.DocumentAssistant, stream);
+                var assistantName = await AIAssistantProvider.CreateDocumentAssistant(stream);
                 return new DocumentOperationResponse {
                     DocumentId = request.DocumentId,
                     CustomData = assistantName,
