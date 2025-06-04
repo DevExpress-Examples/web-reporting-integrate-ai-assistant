@@ -55,7 +55,7 @@
     <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.5.0-preview.1.25265.7" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.117" />
     <PackageReference Include="DevExpress.AspNetCore.Reporting" Version="25.1.*-*" />
-	  <PackageReference Include="DevExpress.AIIntegration.Web" Version="25.1.*-*" />
+	<PackageReference Include="DevExpress.AIIntegration.Web" Version="25.1.*-*" />
     <PackageReference Include="DevExpress.Drawing.Skia" Version="25.1.*-*" />
     <PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
     <PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="2.1.175" />
