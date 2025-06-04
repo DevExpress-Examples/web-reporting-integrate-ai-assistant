@@ -18,7 +18,9 @@ The AI assistant's role depends on the associated DevExpress Reports component:
 > [!Note]
 > We use the following versions of the `Microsoft.Extensions.AI.*` libraries in our source code:
 >
-> v25.1.2+ | **9.4.3-preview.1.25230.7**
+> - Microsoft.Extensions.AI.Abstractions: **9.5.0**
+> - Microsoft.Extensions.AI: **9.5.0**
+> - Microsoft.Extensions.AI.OpenAI: **9.5.0-preview.1.25265.7**
 >
 > We do not guarantee compatibility or correct operation with higher versions.
 
@@ -76,20 +78,28 @@ Files to Review:
 
 #### AI Assistant Provider
  
-On the server side, the `AIAssistantProvider` service manages assistants. An `IAIAssistantFactory` instance creates assistants with keys specified in previous steps.
+On the server side, the `AIAssistantProvider` service manages assistants. 
  
 ```cs
 public interface IAIAssistantProvider {
     IAIAssistant GetAssistant(string assistantName);
-    Task<string> CreateAssistant(AssistantType assistantType, Stream data);
-    Task<string> CreateAssistant(AssistantType assistantType);
+    Task<string> CreateDocumentAssistant(Stream data);
+    Task<string> CreateUserAssistant();
     void DisposeAssistant(string assistantName);
 }
 ```
 
+The `AIAssistantCreator.CreateAssistantAsync` method uploads a file to OpenAI, configures tool resources, creates an assistant with specified instructions and tools, initializes a new thread, and returns the assistant and thread IDs. The generated assistant and thread IDs are then passed to the `IAIAssistantFactory.GetAssistant` method, which returns an `IAIAssistant` instance. The created instance is added to the application's assistant collection and is referenced by its unique name.
+
+For information on OpenAI Assistants, refer to the following documents: 
+- [OpenAI Assistants API overview](https://platform.openai.com/docs/assistants/overview)
+- [Azure OpenAI: OpenAI Assistants client library for .NET](https://learn.microsoft.com/en-us/dotnet/api/overview/azure/ai.openai.assistants-readme?view=azure-dotnet-preview)
+- [OpenAI .NET API library](https://github.com/openai/openai-dotnet)
+
 Files to Review: 
 - [AIAssistantProvider.cs](./CS/ReportingApp/Services/AIAssistantProvider.cs)
 - [IAIAssistantProvider.cs](./CS/ReportingApp/Services/IAIAssistantProvider.cs)
+- [AIAssistantCreator.cs](./CS/ReportingApp/Services/AIAssistantCreator.cs)
 
 
 ### Web Document Viewer (Data Analysis Assistant)
@@ -132,7 +142,7 @@ On the `BeforeRender` event, add a new tab (a container for the assistant interf
 
 #### Access the Assistant
 
-Once the document is ready, the `DocumentReady` event handler sends a request to the server and obtains the assistant's ID:
+Once the document is ready, the `DocumentReady` event handler sends a request to the server and obtains the assistant name:
 
 ```js
 async function DocumentReady(sender, args) {
@@ -144,7 +154,27 @@ async function DocumentReady(sender, args) {
 }
 ```
 
-The [`PerformCustomDocumentOperation`](https://docs.devexpress.com/XtraReports/js-ASPxClientWebDocumentViewer?p=netframework#js_aspxclientwebdocumentviewer_performcustomdocumentoperation) method exports the report to PDF and creates an assistant based on the exported document. See [AIDocumentOperationService.cs](./CS/ReportingApp/Services/AIDocumentOperationService.cs) for implementation details.
+The [`PerformCustomDocumentOperation`](https://docs.devexpress.com/XtraReports/js-ASPxClientWebDocumentViewer?p=netframework#js_aspxclientwebdocumentviewer_performcustomdocumentoperation) method exports the report to PDF and creates an assistant based on the exported document: 
+
+```cs
+// ...
+public override async Task<DocumentOperationResponse> PerformOperationAsync(DocumentOperationRequest request, PrintingSystemBase printingSystem, PrintingSystemBase printingSystemWithEditingFields) {
+    using(var stream = new MemoryStream()) {
+        printingSystem.ExportToPdf(stream, printingSystem.ExportOptions.Pdf);
+        var assistantName = await AIAssistantProvider.CreateDocumentAssistant(stream);
+        return new DocumentOperationResponse {
+            DocumentId = request.DocumentId,
+            CustomData = assistantName,
+            Succeeded = true
+        };
+    }
+}
+```
+
+See the following files for implementation details:
+
+- [AIDocumentOperationService.cs](./CS/ReportingApp/Services/AIDocumentOperationService.cs)
+- [AIAssistantProvider.cs](./CS/ReportingApp/Services/AIAssistantProvider.cs)
 
 #### Communicate with the Assistant
 
@@ -239,21 +269,9 @@ async function BeforeRender(sender, args) {
 }
 ```
 
-The `AIAssistantProvider` service creates an assistant using the provided PDF documentation (the *documentation.pdf* file):
+The `AIAssistantProvider.CreateUserAssistant` method creates an assistant using the provided PDF documentation (the *documentation.pdf* file) and prompt. See the [AIAssistantProvider.cs](./CS/ReportingApp/Services/AIAssistantProvider.cs) file for implementation details.
 
-```cs
-// ...
-public async Task<string> CreateAssistant(AssistantType assistantType, Stream data) {
-    var assistantName = Guid.NewGuid().ToString();
-    var assistant = await assistantFactory.CreateAssistant(assistantName);
-    Assistants.TryAdd(assistantName, assistant);
-    var prompt = GetPrompt(assistantType);
-    if(assistantType == AssistantType.UserAssistant) {
-        await LoadDocumentation(assistant, prompt);
-    } 
-    return assistantName;
-}
-```
+
 #### Communicate with the Assistant
 
 Each time a user sends a message, the [`onMessageEntered`](https://js.devexpress.com/jQuery/Documentation/24_2/ApiReference/UI_Components/dxChat/Configuration/#onMessageEntered) event handler passes the request to the assistant:

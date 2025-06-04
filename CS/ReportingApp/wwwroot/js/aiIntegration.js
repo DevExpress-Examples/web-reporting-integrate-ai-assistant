@@ -1,4 +1,4 @@
-const createAssistantTab = (function() {
+﻿const createAssistantTab = (function() {
 
     let lastUserQuery;
     let errorList = [];
@@ -34,11 +34,13 @@ const createAssistantTab = (function() {
     }
 
     function normalizeAIResponse(text) {
-        text = text.replace(/【\d+:\d+†[^\】]+】/g, "");
-        let html = marked.parse(text);
-        if(/<p>\.\s*<\/p>\s*$/.test(html))
-            html = html.replace(/<p>\.\s*<\/p>\s*$/, "")
-        return html;
+        if (text) {
+            text = text.replace(/【\d+:\d+†[^\】]+】/g, "");
+            let html = marked.parse(text);
+            if (/<p>\.\s*<\/p>\s*$/.test(html))
+                html = html.replace(/<p>\.\s*<\/p>\s*$/, "")
+            return html;
+        }
     }
 
     function copyText(text) {
