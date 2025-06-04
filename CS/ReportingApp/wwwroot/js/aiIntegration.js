@@ -41,6 +41,9 @@
                 html = html.replace(/<p>\.\s*<\/p>\s*$/, "")
             return html;
         }
+        else {
+            return "Please try again later."
+        }
     }
 
     function copyText(text) {
