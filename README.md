@@ -268,7 +268,7 @@ async function BeforeRender(sender, args) {
 }
 ```
 
-The `AIAssistantProvider.CreateUserAssistant` method creates an assistant using the provided PDF documentation (the *documentation.pdf* file) and prompt. See the [AIAssistantProvider.cs](./CS/ReportingApp/Services/AIAssistantProvider.cs) file for implementation details.
+The `AIAssistantProvider.CreateUserAssistant` method creates an assistant using the *documentation.pdf* file ([end-user documentation for Web Reporting Controls](https://github.com/DevExpress/dotnet-eud) in the PDF format) and the specified prompt. See the [AIAssistantProvider.cs](./CS/ReportingApp/Services/AIAssistantProvider.cs) file for implementation details.
 
 
 #### Communicate with the Assistant
