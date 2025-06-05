@@ -1,9 +1,9 @@
-﻿using System;
+﻿using DevExpress.AIIntegration.Services.Assistant;
+using Microsoft.AspNetCore.Hosting;
+using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
-using DevExpress.AIIntegration.Services.Assistant;
 
 namespace ReportingApp.Services {
     public class AIAssistantProvider : IAIAssistantProvider {
@@ -19,7 +19,7 @@ namespace ReportingApp.Services {
         private ConcurrentDictionary<string, IAIAssistant> Assistants { get; set; } = new ();
 
         private async Task<string> CreateAssistant(Stream data, string fileName, string prompt) {
-            (string assistantId, string threadId) = await assistantCreator.CreateAssistantAsync(data, fileName, prompt);
+            (string assistantId, string threadId) = await assistantCreator.CreateAssistantAndThreadAsync(data, fileName, prompt);
 
             IAIAssistant assistant = await assistantFactory.GetAssistant(assistantId, threadId);
             await assistant.InitializeAsync();
@@ -35,9 +35,15 @@ namespace ReportingApp.Services {
             this.environment = environment;
             this.assistantCreator = assistantCreator;
         }
+
+        // Creates a Data Analysis Assistant for Web Document Viewer. 
+        // This assistant analyzes report content and answers questions related to information within the report.
         public async Task<string> CreateDocumentAssistant(Stream data) {
             return await CreateAssistant(data, Guid.NewGuid().ToString() + ".pdf", DOCUMENT_ASSISTANT_PROMPT);
         }
+
+        // Creates a UI Asisstant for Web Report Designer.
+        // This assistant explains how to use the Designer UI to accomplish various tasks. 
         public async Task<string> CreateUserAssistant() {
             string dirPath = Path.Combine(environment.ContentRootPath, "Data");
             string filePath = Path.Combine(dirPath, DOCUMENTATION_FILE_NAME);

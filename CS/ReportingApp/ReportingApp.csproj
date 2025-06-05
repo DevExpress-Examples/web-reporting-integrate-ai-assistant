@@ -51,8 +51,8 @@
     <PackageReference Include="Azure.AI.OpenAI.Assistants" Version="1.0.0-beta.4" />
     <PackageReference Include="DevExpress.AIIntegration.OpenAI" Version="25.1.*-*" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.11" />
-    <PackageReference Include="Microsoft.Extensions.AI" Version="9.4.3-preview.1.25230.7" />
-    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.4.3-preview.1.25230.7" />
+    <PackageReference Include="Microsoft.Extensions.AI" Version="9.5.0" />
+    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.5.0-preview.1.25265.7" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.117" />
     <PackageReference Include="DevExpress.AspNetCore.Reporting" Version="25.1.*-*" />
 	<PackageReference Include="DevExpress.AIIntegration.Web" Version="25.1.*-*" />
