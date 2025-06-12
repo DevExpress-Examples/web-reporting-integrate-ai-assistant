@@ -20,7 +20,7 @@ The AI assistant's role depends on the associated DevExpress Reports component:
 > - Microsoft.Extensions.AI: **9.5.0**
 > - Microsoft.Extensions.AI.OpenAI: **9.5.0-preview.1.25265.7**
 >
-> We do not guarantee compatibility or correct operation with higher versions.
+> We do not guarantee compatibility or correct operation with other versions.
 
 **Please note that AI Assistant initialization takes time. The assistant tab appears once Microsoft Azure scans the source document on the server side.**
 
