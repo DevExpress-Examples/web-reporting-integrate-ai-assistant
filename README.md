@@ -16,9 +16,11 @@ The AI assistant's role depends on the associated DevExpress Reports component:
 > [!Note]
 > We use the following versions of the `Microsoft.Extensions.AI.*` libraries in our source code:
 >
-> v24.2.6+ | **9.3.0-preview.1.25161.3**
+> - Microsoft.Extensions.AI.Abstractions: **9.5.0**
+> - Microsoft.Extensions.AI: **9.5.0**
+> - Microsoft.Extensions.AI.OpenAI: **9.5.0-preview.1.25265.7**
 >
-> We do not guarantee compatibility or correct operation with higher versions. Refer to the following announcement for additional information: [Microsoft.Extensions.AI.Abstractions NuGet Package Version Upgrade in v24.2.6](https://community.devexpress.com/blogs/news/archive/2025/03/12/important-announcement-microsoft-extensions-ai-abstractions-nuget-package-version-upgrade.aspx).
+> We do not guarantee compatibility or correct operation with higher versions.
 
 **Please note that AI Assistant initialization takes time. The assistant tab appears once Microsoft Azure scans the source document on the server side.**
 
@@ -64,7 +66,7 @@ var azureOpenAIClient = new AzureOpenAIClient(
     new Uri(EnvSettings.AzureOpenAIEndpoint),
     new AzureKeyCredential(EnvSettings.AzureOpenAIKey));
     
-var chatClient = azureOpenAIClient.AsChatClient(EnvSettings.DeploymentName);
+var chatClient = azureOpenAIClient.GetChatClient(EnvSettings.DeploymentName).AsIChatClient();
 builder.Services.AddDevExpressAI(config =>
 {
     config.RegisterOpenAIAssistants(azureOpenAIClient, EnvSettings.DeploymentName);
