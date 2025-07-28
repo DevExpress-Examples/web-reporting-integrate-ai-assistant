@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 
 namespace ReportingApp.Services {
     public interface IAIAssistantProvider {
-        IAIAssistant GetAssistant(string assistantName);
+        IAIAssistant GetAssistant(string assistantId);
         Task<string> CreateDocumentAssistant(Stream data);
         Task<string> CreateUserAssistant();
-        void DisposeAssistant(string assistantName);
+        Task DisposeAssistant(string assistantId);
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ClientModel;
+using System.Collections.Concurrent;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using OpenAI;
@@ -9,13 +11,17 @@ using OpenAI.Files;
 
 namespace ReportingApp.Services {
 #pragma warning disable OPENAI001
-    public class AIAssistantCreator : IDisposable{
+    public class AssistantResources {
+        public Assistant Assistant { get; set; }
+        public AssistantThread Thread { get; set; }
+        public OpenAIFile File { get; set; }
+    }
+
+    public class AIAssistantCreator : IAsyncDisposable {
         readonly AssistantClient assistantClient;
         readonly OpenAIFileClient fileClient;
         readonly string deployment;
-        AssistantThread thread;
-        Assistant assistant;
-        OpenAIFile file;
+        readonly ConcurrentDictionary<string, AssistantResources> assistantsResources = new();
 
         public AIAssistantCreator(OpenAIClient client, string deployment) {
             assistantClient = client.GetAssistantClient();
@@ -27,7 +33,7 @@ namespace ReportingApp.Services {
             data.Position = 0;
 
             ClientResult<OpenAIFile> fileResponse = await fileClient.UploadFileAsync(data, fileName, FileUploadPurpose.Assistants, ct);
-            file = fileResponse.Value;
+            var file = fileResponse.Value;
 
             var resources = new ToolResources() {
                 CodeInterpreter = new CodeInterpreterToolResources(),
@@ -44,24 +50,43 @@ namespace ReportingApp.Services {
                           new FileSearchToolDefinition() }
             };
             ClientResult<Assistant> assistantResponse = await assistantClient.CreateAssistantAsync(deployment, assistantCreationOptions, ct);
-            assistant = assistantResponse.Value;
+            var assistant = assistantResponse.Value;
             ClientResult<AssistantThread> threadResponse = await assistantClient.CreateThreadAsync(cancellationToken: ct);
-            thread = threadResponse.Value;
+            var thread = threadResponse.Value;
 
-            return (assistantResponse.Value.Id, threadResponse.Value.Id);
+            assistantsResources.TryAdd(assistant.Id, new() {
+                Assistant = assistant,
+                Thread = threadResponse.Value,
+                File = fileResponse.Value
+            });
+            return (assistant.Id, thread.Id);
         }
-        
-        public void Dispose() {
-            try {
-                if(assistant != null){
-                    assistantClient?.DeleteAssistant(assistant.Id);
-                    assistantClient?.DeleteThread(thread.Id);
-                    fileClient?.DeleteFile(file.Id);
-                    assistant = null;
-                    thread = null;
-                    file = null;
+
+        public async Task CleanUpAssistantAsync(string assistantId) {
+            if(assistantsResources.TryRemove(assistantId, out var resources)) {
+                try{
+                    if(resources.Assistant != null){
+                        await assistantClient.DeleteAssistantAsync(resources.Assistant.Id);
+                    }
+
+                    if(resources.Thread != null){
+                        await assistantClient.DeleteThreadAsync(resources.Thread.Id);
+                    }
+
+                    if(resources.File != null){
+                        await fileClient.DeleteFileAsync(resources.File.Id);
+                    }
                 }
-            } catch {}
+                catch{}
+            }
+        }
+
+        public async ValueTask DisposeAsync() {
+            var assistantIds = assistantsResources.Keys.ToList();
+            foreach (var assistantId in assistantIds){
+                await CleanUpAssistantAsync(assistantId);
+            }
+            assistantsResources.Clear();
         }
     }
 #pragma warning restore OPENAI001
