@@ -6,7 +6,7 @@ using System.IO;
 using System.Threading.Tasks;
 
 namespace ReportingApp.Services {
-    public class AIAssistantProvider : IAIAssistantProvider, IDisposable {
+    public class AIAssistantProvider : IAIAssistantProvider, IAsyncDisposable {
         const string ASSISTANT_NOT_FOUND_ERROR = "Assistant not found";
         const string DOCUMENTATION_FILE_NAME = "documentation.pdf";
         const string DOCUMENT_ASSISTANT_PROMPT = "You are a data analysis assistant. Your task is to read information from PDF files and provide users with accurate data-driven answers based on the contents of these files. \n Key Responsibilities: \n - Perform data analysis, including data summaries, calculations, filtering, and trend identification.\n - Clearly explain your analysis process to ensure users understand how you reached your conclusions.\n - Provide precise and accurate responses strictly based on data in the file.\n - If the requested information is not available in the provided file's content, state: \"The requested information cannot be found in the data provided.\"\n - Avoid giving responses when data is insufficient for a reliable answer.\n - Ask clarifying questions when a user’s query is unclear or lacks detail.\n - Your primary goal is to deliver helpful insights that directly address user questions. Do not make assumptions or infer details not supported by data. Respond in plain text only, without sources, footnotes, or annotations.\n Avoid giving information about provided file name, assistants' IDs and other internal data";
@@ -14,25 +14,26 @@ namespace ReportingApp.Services {
 
         private readonly IAIAssistantFactory assistantFactory;
         private readonly IWebHostEnvironment environment;
-        private readonly AIAssistantCreator assistantCreator;
+        private readonly AIAssistantManager assistantManager;
 
-        private ConcurrentDictionary<string, IAIAssistant> Assistants { get; set; } = new ();
+        private ConcurrentDictionary<string, (IAIAssistant, AIAssistantData)> Assistants { get; set; } = new ();
 
         private async Task<string> CreateAssistant(Stream data, string fileName, string prompt) {
-            (string assistantId, string threadId) = await assistantCreator.CreateAssistantAndThreadAsync(data, fileName, prompt);
+            var assistantData = await assistantManager.CreateAssistantAndThreadAsync(data, fileName, prompt);
 
-            IAIAssistant assistant = await assistantFactory.GetAssistant(assistantId, threadId);
+            IAIAssistant assistant = await assistantFactory.GetAssistant(assistantData.AssistantId, assistantData.ThreadId);
             await assistant.InitializeAsync();
 
-            Assistants.TryAdd(assistantId, assistant);
+            string assistantName = Guid.NewGuid().ToString();
+            Assistants.TryAdd(assistantName, (assistant, assistantData));
 
-            return assistantId;
+            return assistantName;
         }
 
-        public AIAssistantProvider(IAIAssistantFactory assistantFactory, IWebHostEnvironment environment, AIAssistantCreator assistantCreator) {
+        public AIAssistantProvider(IAIAssistantFactory assistantFactory, IWebHostEnvironment environment, AIAssistantManager assistantManager) {
             this.assistantFactory = assistantFactory;
             this.environment = environment;
-            this.assistantCreator = assistantCreator;
+            this.assistantManager = assistantManager;
         }
 
         // Creates a Data Analysis Assistant for Web Document Viewer. 
@@ -51,24 +52,26 @@ namespace ReportingApp.Services {
                 return await CreateAssistant(stream, DOCUMENTATION_FILE_NAME, USER_ASSISTANT_PROMPT);
         }
         public async Task DisposeAssistant(string assistantId) {
-            if(Assistants.TryRemove(assistantId, out IAIAssistant assistant)) {
+            if(Assistants.TryRemove(assistantId, out var tuple)) {
+                var (assistant, assistantData) = tuple;
                 assistant.Dispose();
-                await assistantCreator.CleanUpAssistantAsync(assistantId);
+                await assistantManager.CleanUpAssistantAsync(assistantData);
             } else {
                 throw new Exception(ASSISTANT_NOT_FOUND_ERROR);
             }
         }
         public IAIAssistant GetAssistant(string assistantId) {
-            if(!string.IsNullOrEmpty(assistantId) && Assistants.TryGetValue(assistantId, out var assistant)) {
-                return assistant;
+            if(!string.IsNullOrEmpty(assistantId) && Assistants.TryGetValue(assistantId, out var tuple)) {
+                return tuple.Item1;
             } else {
                 throw new Exception(ASSISTANT_NOT_FOUND_ERROR);
             }
         }
 
-        public void Dispose() {
-            foreach (var assistant in Assistants.Values){
+        public async ValueTask DisposeAsync() {
+            foreach(var (assistant, assistantData) in Assistants.Values) {
                 assistant.Dispose();
+                await assistantManager.CleanUpAssistantAsync(assistantData);
             }
             Assistants.Clear();
         }
