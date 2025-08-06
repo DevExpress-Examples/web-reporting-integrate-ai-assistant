@@ -17,6 +17,7 @@ using System.IO;
 using Azure;
 using DevExpress.AIIntegration;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDevExpressControls();
@@ -42,12 +43,10 @@ var azureOpenAIClient = new AzureOpenAIClient(
     new Uri(EnvSettings.AzureOpenAIEndpoint),
     new AzureKeyCredential(EnvSettings.AzureOpenAIKey));
     
-var chatClient = azureOpenAIClient.GetChatClient(EnvSettings.DeploymentName).AsIChatClient;
-
-var assistantCreator = new AIAssistantCreator(azureOpenAIClient, EnvSettings.DeploymentName);
+var chatClient = azureOpenAIClient.GetChatClient(EnvSettings.DeploymentName).AsIChatClient();
 
 builder.Services.AddSingleton(chatClient);
-builder.Services.AddSingleton(assistantCreator);
+builder.Services.AddSingleton<AIAssistantManager>(sp => new(azureOpenAIClient, EnvSettings.DeploymentName, sp.GetRequiredService<ILogger<AIAssistantManager>>()));
 builder.Services.AddSingleton<IAIAssistantProvider, AIAssistantProvider>();
 builder.Services.AddDevExpressAI(config =>
 {

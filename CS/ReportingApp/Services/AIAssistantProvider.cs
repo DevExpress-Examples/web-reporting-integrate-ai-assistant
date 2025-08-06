@@ -51,8 +51,8 @@ namespace ReportingApp.Services {
             using (FileStream stream = File.OpenRead(filePath))
                 return await CreateAssistant(stream, DOCUMENTATION_FILE_NAME, USER_ASSISTANT_PROMPT);
         }
-        public async Task DisposeAssistant(string assistantId) {
-            if(Assistants.TryRemove(assistantId, out var tuple)) {
+        public async Task DisposeAssistant(string assistantName) {
+            if(Assistants.TryRemove(assistantName, out var tuple)) {
                 var (assistant, assistantData) = tuple;
                 assistant.Dispose();
                 await assistantManager.CleanUpAssistantAsync(assistantData);
@@ -60,8 +60,8 @@ namespace ReportingApp.Services {
                 throw new Exception(ASSISTANT_NOT_FOUND_ERROR);
             }
         }
-        public IAIAssistant GetAssistant(string assistantId) {
-            if(!string.IsNullOrEmpty(assistantId) && Assistants.TryGetValue(assistantId, out var tuple)) {
+        public IAIAssistant GetAssistant(string assistantName) {
+            if(!string.IsNullOrEmpty(assistantName) && Assistants.TryGetValue(assistantName, out var tuple)) {
                 return tuple.Item1;
             } else {
                 throw new Exception(ASSISTANT_NOT_FOUND_ERROR);

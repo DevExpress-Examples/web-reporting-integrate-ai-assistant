@@ -3,6 +3,7 @@ using System.ClientModel;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using OpenAI;
 using OpenAI.Assistants;
 using OpenAI.Files;
@@ -18,12 +19,14 @@ namespace ReportingApp.Services {
     public class AIAssistantManager {
         readonly AssistantClient assistantClient;
         readonly OpenAIFileClient fileClient;
+        readonly ILogger<AIAssistantManager> logger;
         readonly string deployment;
 
-        public AIAssistantManager(OpenAIClient client, string deployment) {
+        public AIAssistantManager(OpenAIClient client, string deployment, ILogger<AIAssistantManager> logger) {
             assistantClient = client.GetAssistantClient();
             fileClient = client.GetOpenAIFileClient();
             this.deployment = deployment;
+            this.logger = logger;
         }
 
         public async Task<AIAssistantData> CreateAssistantAndThreadAsync(Stream data, string fileName, string instructions, CancellationToken ct = default) {
@@ -68,7 +71,9 @@ namespace ReportingApp.Services {
                     await fileClient.DeleteFileAsync(assistantData.FileId);
                 }
             }
-            catch{}
+            catch(Exception e) {
+                logger.LogError($"Error cleaning up assistant: {e.Message}\n{e.StackTrace}");
+            }
         }
     }
 #pragma warning restore OPENAI001
