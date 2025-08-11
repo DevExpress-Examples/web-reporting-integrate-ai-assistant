@@ -7,6 +7,6 @@ namespace ReportingApp.Services {
         IAIAssistant GetAssistant(string assistantName);
         Task<string> CreateDocumentAssistant(Stream data);
         Task<string> CreateUserAssistant();
-        void DisposeAssistant(string assistantName);
+        Task DisposeAssistant(string assistantName);
     }
 }

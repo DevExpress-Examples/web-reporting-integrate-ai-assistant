@@ -19,8 +19,8 @@ namespace ReportingApp.Controllers {
             return await assistant.GetAnswerAsync(text);
         }
 
-        public ActionResult CloseChat([FromForm] string chatId) {
-            AIAssistantProvider.DisposeAssistant(chatId);
+        public async Task<ActionResult> CloseChat([FromForm] string chatId) {
+            await AIAssistantProvider.DisposeAssistant(chatId);
             return Ok();
         }
     }
