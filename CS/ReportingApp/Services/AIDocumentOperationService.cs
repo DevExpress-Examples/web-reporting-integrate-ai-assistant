@@ -6,10 +6,10 @@ using DevExpress.XtraReports.Web.WebDocumentViewer.DataContracts;
 
 namespace ReportingApp.Services {
     public class AIDocumentOperationService : DocumentOperationService {
-        private IAIAssistantProvider AIAssistantProvider { get; set; }
+        private readonly IAIReportingChatService chatService;
 
-        public AIDocumentOperationService(IAIAssistantProvider assistantProvider) {
-            AIAssistantProvider = assistantProvider;
+        public AIDocumentOperationService(IAIReportingChatService chatService) {
+            this.chatService = chatService;
         }
 
         public override bool CanPerformOperation(DocumentOperationRequest request) {
@@ -18,7 +18,7 @@ namespace ReportingApp.Services {
         public override async Task<DocumentOperationResponse> PerformOperationAsync(DocumentOperationRequest request, PrintingSystemBase printingSystem, PrintingSystemBase printingSystemWithEditingFields) {
             using(var stream = new MemoryStream()) {
                 printingSystem.ExportToPdf(stream, printingSystem.ExportOptions.Pdf);
-                var assistantName = await AIAssistantProvider.CreateDocumentAssistant(stream);
+                var assistantName = await chatService.OpenDocumentChatAsync(stream);
                 return new DocumentOperationResponse {
                     DocumentId = request.DocumentId,
                     CustomData = assistantName,

@@ -1,6 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <DefaultItemExcludes>Reports\**</DefaultItemExcludes>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileFile>Dockerfile</DockerfileFile>
@@ -47,16 +47,17 @@
     <Exec Command="npm install" />
   </Target>
   <ItemGroup>
-    <PackageReference Include="Azure.AI.OpenAI" Version="2.2.0-beta.5" />
-    <PackageReference Include="Azure.AI.OpenAI.Assistants" Version="1.0.0-beta.4" />
-    <PackageReference Include="DevExpress.AIIntegration.OpenAI" Version="25.2.2-beta" />
+    <PackageReference Include="Azure.AI.OpenAI" Version="2.9.0-beta.1" />
+    <PackageReference Include="DevExpress.AIIntegration.OpenAI" Version="26.1.2-beta" />
+    <PackageReference Include="DevExpress.AIIntegration.Agents" Version="26.1.2-beta" />
+    <PackageReference Include="Microsoft.Agents.AI.OpenAI" Version="1.5.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.11" />
-    <PackageReference Include="Microsoft.Extensions.AI" Version="9.7.1" />
-    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.7.1-preview.1.25365.4" />
-    <PackageReference Include="System.Data.SQLite" Version="1.0.117" />
-    <PackageReference Include="DevExpress.AspNetCore.Reporting" Version="25.2.2-beta" />
-	<PackageReference Include="DevExpress.AIIntegration.Web" Version="25.2.2-beta" />
-    <PackageReference Include="DevExpress.Drawing.Skia" Version="25.2.2-beta" />
+    <PackageReference Include="Microsoft.Extensions.AI" Version="10.6.0" />
+    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.6.0" />
+    <PackageReference Include="System.Data.SQLite" Version="2.0.3" />
+    <PackageReference Include="DevExpress.AspNetCore.Reporting" Version="26.1.2-beta" />
+	  <PackageReference Include="DevExpress.AIIntegration.Web" Version="26.1.2-beta" />
+    <PackageReference Include="DevExpress.Drawing.Skia" Version="26.1.2-beta" />
     <PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
     <PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="2.1.175" />
   </ItemGroup>
