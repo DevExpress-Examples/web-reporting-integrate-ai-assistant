@@ -18,10 +18,10 @@ namespace ReportingApp.Services {
         public override async Task<DocumentOperationResponse> PerformOperationAsync(DocumentOperationRequest request, PrintingSystemBase printingSystem, PrintingSystemBase printingSystemWithEditingFields) {
             using(var stream = new MemoryStream()) {
                 printingSystem.ExportToPdf(stream, printingSystem.ExportOptions.Pdf);
-                var assistantName = await chatService.OpenDocumentChatAsync(stream);
+                var chatId = await chatService.OpenDocumentChatAsync(stream);
                 return new DocumentOperationResponse {
                     DocumentId = request.DocumentId,
-                    CustomData = assistantName,
+                    CustomData = chatId,
                     Succeeded = true
                 };
             }
