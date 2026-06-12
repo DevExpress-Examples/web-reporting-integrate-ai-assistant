@@ -15,8 +15,6 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.IO;
 using Azure;
-using DevExpress.AIIntegration;
-using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -43,13 +41,9 @@ var azureOpenAIClient = new AzureOpenAIClient(
     new Uri(EnvSettings.AzureOpenAIEndpoint),
     new AzureKeyCredential(EnvSettings.AzureOpenAIKey));
     
-var chatClient = azureOpenAIClient.GetChatClient(EnvSettings.DeploymentName).AsIChatClient();
-
-builder.Services.AddSingleton(chatClient);
 builder.Services.AddSingleton<AgentFactory>(sp =>
     new(azureOpenAIClient, EnvSettings.DeploymentName, sp.GetRequiredService<ILogger<AgentFactory>>()));
 builder.Services.AddSingleton<IAIReportingChatService, AIReportingChatService>();
-builder.Services.AddDevExpressAI(config => { });
 
 var app = builder.Build();
 using(var scope = app.Services.CreateScope()) {

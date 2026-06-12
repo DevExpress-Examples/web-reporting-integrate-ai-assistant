@@ -13,6 +13,8 @@ using OpenAI.Responses;
 using OpenAI.VectorStores;
 
 namespace ReportingApp.Services {
+    // The OpenAI.Responses API is for evaluation purposes only and is subject to change or removal in a future update.
+    // The following code suppresses the OPENAI001 diagnostic.
 #pragma warning disable OPENAI001
     public class AgentFactory {
         readonly AzureOpenAIClient openAIClient;
@@ -25,9 +27,9 @@ namespace ReportingApp.Services {
             this.logger = logger;
         }
 
-        // Uploads a PDF stream to OpenAI, creates a short-lived vector store, and returns
-        // an IChatResponseProvider backed by a Responses API agent with file search + code
-        // interpreter tools. The cleanup delegate removes the uploaded resources.
+        // Upload a PDF stream to OpenAI, create a short-lived vector store, and return
+        // an IChatResponseProvider backed by a Responses API agent with File Search and
+        // Code Interpreter tools. The cleanup delegate removes the uploaded resources.
         public async Task<(IChatResponseProvider Provider, Func<Task> Cleanup)> CreateAgentWithFileAsync(
             Stream data, string fileName, string instructions, CancellationToken ct = default) {
 
