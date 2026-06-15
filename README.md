@@ -26,9 +26,9 @@ To answer questions, the application uploads ODF documents to Azure OpenAI, and 
 > [!NOTE]  
 > DevExpress AI-powered extensions follow the "bring your own key" principle. DevExpress does not offer a REST API and does not ship any built-in LLMs/SLMs. You need an active Azure/Open AI subscription to obtain the REST API endpoint, key, and model deployment name. These variables must be specified at application startup to register AI clients and enable DevExpress AI-powered Extensions in your application.
 
-Create an Azure OpenAI resource in the Azure portal. Refer to the following help topic for additional information in this regard: [Microsoft - Create and deploy an Azure OpenAI Service resource](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/create-resource?pivots=web-portal).
+Create an Azure OpenAI resource in the Azure portal. Refer to the following help topic for additional information: [Microsoft - Create and deploy an Azure OpenAI Service resource](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/create-resource?pivots=web-portal).
 
-Once you obtain a private endpoint and an API key, register them as `AZURE_OPENAI_ENDPOINT` and `AZURE_OPENAI_APIKEY` environment variables. The [EnvSettings.cs](./CS/ReportingApp/EnvSettings.cs) file reads these settings. `DeploymentName` is the name of your Azure model deployment. The model must support the Responses API, File Search, and Code Interpreter tools (for example, `gpt-5.4`):
+Once you obtain a private endpoint and an API key, register them as `AZURE_OPENAI_ENDPOINT` and `AZURE_OPENAI_APIKEY` environment variables. The [EnvSettings.cs](./CS/ReportingApp/EnvSettings.cs) file reads these settings. `DeploymentName` is the name of your Azure model deployment. The model must support Responses API, File Search, and Code Interpreter tools (for example, `gpt-5.4`):
 
 ```cs
 public static class EnvSettings {
@@ -78,14 +78,14 @@ public interface IAIReportingChatService {
 }
 ```
 
-The `AgentFactory` class creates the agent that answers user questions. When a chat opens, `AgentFactory.CreateAgentWithFileAsync`:
+The `AgentFactory` class creates an agent that answers questions. When a chat opens, `AgentFactory.CreateAgentWithFileAsync` does the following:
 
 1. Uploads the source PDF to Azure OpenAI and adds it to a short-lived vector store.
 2. Creates a Responses API agent with File Search and Code Interpreter tools. The agent reads the document content and runs calculations to answer data-driven questions.
 3. Starts a session that preserves the conversation history.
 4. Returns an `IChatResponseProvider`.
 
-`AIReportingChatService` stores each provider by session id and deletes the uploaded file and vector store when the chat is closed.
+`AIReportingChatService` stores each provider by session id, and deletes the uploaded file and vector store when the chat is closed.
 
 For information on the OpenAI Responses API, refer to the following documents: 
 - [Azure OpenAI Responses API](https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/responses?tabs=csharp)
@@ -93,7 +93,7 @@ For information on the OpenAI Responses API, refer to the following documents:
 - [File Search tool](https://developers.openai.com/api/docs/guides/tools-file-search)
 - [Code Interpreter tool](https://developers.openai.com/api/docs/guides/tools-code-interpreter)
 
-You can review and tailor the agent instructions in the following file: [AgentInstructions.cs](./CS/ReportingApp/Services/AgentInstructions.cs).
+You can review and tailor agent instructions in the following file: [AgentInstructions.cs](./CS/ReportingApp/Services/AgentInstructions.cs).
 
 Files to Review: 
 - [IAIReportingChatService.cs](./CS/ReportingApp/Services/IAIReportingChatService.cs)
@@ -283,7 +283,7 @@ async function BeforeRender(sender, args) {
 }
 ```
 
-The `AIController.CreateUserAssistant` action calls `AIReportingChatService.OpenDesignerChatAsync`, which reads the *documentation.pdf* file ([end-user documentation for Web Reporting Controls](https://github.com/DevExpress/dotnet-eud) in PDF format) and opens a chat based on the specified prompt. See the [AIReportingChatService.cs](./CS/ReportingApp/Services/AIReportingChatService.cs) file for implementation details.
+The `AIController.CreateUserAssistant` action calls `AIReportingChatService.OpenDesignerChatAsync` to read the *documentation.pdf* file ([end-user documentation for Web Reporting Controls](https://github.com/DevExpress/dotnet-eud) in PDF format) and creates a chat based on the specified prompt. See the [AIReportingChatService.cs](./CS/ReportingApp/Services/AIReportingChatService.cs) file to review implementation details.
 
 
 #### Communicate with the Assistant
