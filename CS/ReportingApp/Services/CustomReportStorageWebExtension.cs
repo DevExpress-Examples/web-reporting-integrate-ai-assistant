@@ -17,7 +17,7 @@ namespace ReportingApp.Services
         public override bool CanSetData(string url) {
             // Determines whether a report with the specified URL can be saved.
             // Add custom logic that returns **false** for reports that should be read-only.
-            // Return **true** if no valdation is required.
+            // Return **true** if no validation is required.
             // This method is called only for valid URLs (if the **IsValidUrl** method returns **true**).
 
             return true;

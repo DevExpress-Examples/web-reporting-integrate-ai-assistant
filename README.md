@@ -4,25 +4,18 @@
 [![](https://img.shields.io/badge/📖_How_to_use_DevExpress_Examples-e9f6fc?style=flat-square)](https://docs.devexpress.com/GeneralInformation/403183)
 [![](https://img.shields.io/badge/💬_Leave_Feedback-feecdd?style=flat-square)](#does-this-example-address-your-development-requirementsobjectives)
 <!-- default badges end -->
-# Reporting for ASP.NET Core - Integrate AI Assistant based on Azure OpenAI
+# DevExpress Reports for ASP.NET Core — Integrate an AI Assistant (Azure OpenAI)
 
-This example is an ASP.NET Core application with integrated DevExpress Reports and an AI assistant. User requests and assistant responses are displayed on-screen using the DevExtreme [`dxChat`](https://js.devexpress.com/jQuery/Documentation/24_2/ApiReference/UI_Components/dxChat/) component.
+This example is an ASP.NET Core application with integrated DevExpress Reports and an AI assistant. User requests and assistant responses are displayed on-screen using the DevExtreme Chat ([`dxChat`](https://js.devexpress.com/jQuery/Documentation/24_2/ApiReference/UI_Components/dxChat/)) component.
 
-The AI assistant's role depends on the associated DevExpress Reports component:
+The AI assistant's role depends on associated DevExpress Reports component:
 
-- **Data Analysis Assistant**: An assistant for the DevExpress *Web Document Viewer*. This assistant analyzes report content and answers questions related to information within the report.
-- **UI Assistant**: An assistant for the DevExpress *Web Report Designer*. This assistant explains how to use the Designer UI to accomplish various tasks. Responses are based on information from [end-user documentation](https://github.com/DevExpress/dotnet-eud) for DevExpress Web Reporting components.
+- **Data Analysis Assistant**: An assistant for the DevExpress Web Document Viewer. This assistant analyzes report content and answers questions related to information within the report.
+- **UI Assistant**: An assistant for the DevExpress Web Report Designer. This assistant explains how to use the Designer UI to accomplish various tasks. Responses are based on information from [end-user documentation](https://github.com/DevExpress/dotnet-eud) for DevExpress Web Reporting components.
 
-**Please note that AI Assistant initialization takes time. The assistant tab appears once Microsoft Azure scans the source document on the server side.**
+**Note: AI Assistant initialization takes time. The assistant tab becomes available once Azure OpenAI uploads and indexes the source document on the server.**
 
-> [!Note]
-> We use the following versions of the `Microsoft.Extensions.AI.*` libraries in our source code:
->
-> - Microsoft.Extensions.AI.Abstractions: **9.7.1**
-> - Microsoft.Extensions.AI: **9.7.1**
-> - Microsoft.Extensions.AI.OpenAI: **9.7.1-preview.1.25365.4**
->
-> We do not guarantee compatibility or correct operation with higher versions.
+To answer questions, the application uploads ODF documents to Azure OpenAI, and creates a chat agent using the [Azure OpenAI Responses API](https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/responses?tabs=csharp). The agent uses File Search and Code Interpreter tools to read and analyze the document.
 
 ## Implementation Details
 
@@ -33,15 +26,15 @@ The AI assistant's role depends on the associated DevExpress Reports component:
 > [!NOTE]  
 > DevExpress AI-powered extensions follow the "bring your own key" principle. DevExpress does not offer a REST API and does not ship any built-in LLMs/SLMs. You need an active Azure/Open AI subscription to obtain the REST API endpoint, key, and model deployment name. These variables must be specified at application startup to register AI clients and enable DevExpress AI-powered Extensions in your application.
 
-You need to create an Azure OpenAI resource in the Azure portal to use AI Assistants for DevExpress Reporting. Refer to the following help topic for details: [Microsoft - Create and deploy an Azure OpenAI Service resource](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/create-resource?pivots=web-portal).
+Create an Azure OpenAI resource in the Azure portal. Refer to the following help topic for additional information: [Microsoft - Create and deploy an Azure OpenAI Service resource](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/create-resource?pivots=web-portal).
 
-Once you obtain a private endpoint and an API key, register them as `AZURE_OPENAI_ENDPOINT` and `AZURE_OPENAI_APIKEY` environment variables. The [EnvSettings.cs](./CS/ReportingApp/EnvSettings.cs) reads these settings. `DeploymentName` in this file is a name of your Azure model, for example, `GPT4o`:
+Once you obtain a private endpoint and an API key, register them as `AZURE_OPENAI_ENDPOINT` and `AZURE_OPENAI_APIKEY` environment variables. The [EnvSettings.cs](./CS/ReportingApp/EnvSettings.cs) file reads these settings. `DeploymentName` is the name of your Azure model deployment. he model must support Responses API, File Search, and Code Interpreter tools (for example, `gpt-5.4`):
 
 ```cs
 public static class EnvSettings {
     public static string AzureOpenAIEndpoint { get { return Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT"); } }
     public static string AzureOpenAIKey { get { return Environment.GetEnvironmentVariable("AZURE_OPENAI_APIKEY"); } }
-    public static string DeploymentName { get { return "GPT4o"; } }
+    public static string DeploymentName { get { return "gpt-5.4"; } }
 }
 ```
 
@@ -50,61 +43,68 @@ Files to Review:
 
 #### Register AI Services
 
->[!NOTE]
-> The availability of Azure Open AI Assistants depends on region. For additional guidance in this regard, refer to the following document: [Azure OpenAI Service models -- Assistants (Preview)](https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models?tabs=global-standard%2Cstandard-chat-completions#assistants-preview).
-
 Register AI services in your application. Add the following code to the _Program.cs_ file:
 
 ```cs
-using DevExpress.AIIntegration;
 using Azure;
 using Azure.AI.OpenAI;
-using Microsoft.Extensions.AI;
-using System;
+using ReportingApp.Services;
+using Microsoft.Extensions.Logging;
 // ...
 var azureOpenAIClient = new AzureOpenAIClient(
     new Uri(EnvSettings.AzureOpenAIEndpoint),
     new AzureKeyCredential(EnvSettings.AzureOpenAIKey));
-    
-var chatClient = azureOpenAIClient.GetChatClient(EnvSettings.DeploymentName).AsIChatClient;
-builder.Services.AddDevExpressAI(config =>
-{
-    config.RegisterOpenAIAssistants(azureOpenAIClient, EnvSettings.DeploymentName);
-});
+
+// Create a Responses API agent (with File Search and Code Interpreter tools) for each chat.
+builder.Services.AddSingleton<AgentFactory>(sp =>
+    new(azureOpenAIClient, EnvSettings.DeploymentName, sp.GetRequiredService<ILogger<AgentFactory>>()));
+builder.Services.AddSingleton<IAIReportingChatService, AIReportingChatService>();
+// ...
 ```
 
 Files to Review: 
 - [Program.cs](./CS/ReportingApp/Program.cs)
 
 #### AI Assistant Provider
- 
-On the server side, the `AIAssistantProvider` service manages assistants. 
- 
+
+On the server side, the `AIReportingChatService` manages chat sessions:
+
 ```cs
-public interface IAIAssistantProvider {
-    IAIAssistant GetAssistant(string assistantName);
-    Task<string> CreateDocumentAssistant(Stream data);
-    Task<string> CreateUserAssistant();
-    Task DisposeAssistant(string assistantName);
+public interface IAIReportingChatService {
+    IChatResponseProvider GetChatProvider(string sessionId);
+    Task<string> OpenDocumentChatAsync(Stream data);
+    Task<string> OpenDesignerChatAsync();
+    Task CloseChatAsync(string sessionId);
 }
 ```
 
-The `AIAssistantManager.CreateAssistantAsync` method uploads a file to OpenAI, configures tool resources, creates an assistant with specified instructions and tools, initializes a new thread, and returns the assistant, thread and file IDs (an `AIAssistantData` object). The generated assistant and thread IDs are then passed to the `IAIAssistantFactory.GetAssistant` method, which returns an `IAIAssistant` instance. The created instance is added to the application's assistant collection and is referenced by its unique name.
+The `AgentFactory` class creates an agent that answers questions. When a chat opens, `AgentFactory.CreateAgentWithFileAsync` does the following:
 
-For information on OpenAI Assistants, refer to the following documents: 
-- [OpenAI Assistants API overview](https://platform.openai.com/docs/assistants/overview)
-- [Azure OpenAI: OpenAI Assistants client library for .NET](https://learn.microsoft.com/en-us/dotnet/api/overview/azure/ai.openai.assistants-readme?view=azure-dotnet-preview)
-- [OpenAI .NET API library](https://github.com/openai/openai-dotnet)
+1. Uploads the source PDF to Azure OpenAI and adds it to a short-lived vector store.
+2. Creates a Responses API agent with File Search and Code Interpreter tools. The agent reads the document content and runs calculations to answer data-driven questions.
+3. Starts a session that preserves the conversation history.
+4. Returns an `IChatResponseProvider`.
+
+`AIReportingChatService` stores each provider by session id, and deletes the uploaded file and vector store when the chat is closed.
+
+For information on the OpenAI Responses API, refer to the following documents: 
+- [Azure OpenAI Responses API](https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/responses?tabs=csharp)
+- [OpenAI Responses API](https://developers.openai.com/api/reference/responses/overview)
+- [File Search tool](https://developers.openai.com/api/docs/guides/tools-file-search)
+- [Code Interpreter tool](https://developers.openai.com/api/docs/guides/tools-code-interpreter)
+
+You can review and tailor agent instructions in the following file: [AgentInstructions.cs](./CS/ReportingApp/Services/AgentInstructions.cs).
 
 Files to Review: 
-- [AIAssistantProvider.cs](./CS/ReportingApp/Services/AIAssistantProvider.cs)
-- [IAIAssistantProvider.cs](./CS/ReportingApp/Services/IAIAssistantProvider.cs)
-- [AIAssistantManager.cs](./CS/ReportingApp/Services/AIAssistantManager.cs)
+- [IAIReportingChatService.cs](./CS/ReportingApp/Services/IAIReportingChatService.cs)
+- [AIReportingChatService.cs](./CS/ReportingApp/Services/AIReportingChatService.cs)
+- [AgentFactory.cs](./CS/ReportingApp/Services/AgentFactory.cs)
+- [AgentInstructions.cs](./CS/ReportingApp/Services/AgentInstructions.cs)
 
 
 ### Web Document Viewer (Data Analysis Assistant)
 
-The following image displays Web Document Viewer UI implemented in this example. The AI Assistant tab uses a `dxChat` component to display requests and responses:
+The following image displays the Web Document Viewer UI implementation described in this example. The AI Assistant tab uses a DevExtreme Chat (`dxChat`) component to display requests and responses:
 
 ![Web Document Viewer](images/web-document-viewer.png)
 
@@ -117,7 +117,7 @@ On the `BeforeRender` event, add a new tab (a container for the assistant interf
 @await Html.PartialAsync("_AILayout")
 <script>
     let aiTab;
-    function BeforeRender(sender, args) {
+    async function BeforeRender(sender, args) {
         const previewModel = args;
         const reportPreview = previewModel.reportPreview;
 
@@ -142,7 +142,7 @@ On the `BeforeRender` event, add a new tab (a container for the assistant interf
 
 #### Access the Assistant
 
-Once the document is ready, the `DocumentReady` event handler sends a request to the server and obtains the assistant name:
+Once the document is ready, the `DocumentReady` event handler sends a request to the server and obtains the chat (session) id:
 
 ```js
 async function DocumentReady(sender, args) {
@@ -154,17 +154,17 @@ async function DocumentReady(sender, args) {
 }
 ```
 
-The [`PerformCustomDocumentOperation`](https://docs.devexpress.com/XtraReports/js-ASPxClientWebDocumentViewer?p=netframework#js_aspxclientwebdocumentviewer_performcustomdocumentoperation) method exports the report to PDF and creates an assistant based on the exported document: 
+The [`PerformCustomDocumentOperation`](https://docs.devexpress.com/XtraReports/js-ASPxClientWebDocumentViewer?p=netframework#js_aspxclientwebdocumentviewer_performcustomdocumentoperation) method exports the report to PDF and opens a chat that uses the exported document to answer user questions: 
 
 ```cs
 // ...
 public override async Task<DocumentOperationResponse> PerformOperationAsync(DocumentOperationRequest request, PrintingSystemBase printingSystem, PrintingSystemBase printingSystemWithEditingFields) {
     using(var stream = new MemoryStream()) {
         printingSystem.ExportToPdf(stream, printingSystem.ExportOptions.Pdf);
-        var assistantName = await AIAssistantProvider.CreateDocumentAssistant(stream);
+        var chatId = await chatService.OpenDocumentChatAsync(stream);
         return new DocumentOperationResponse {
             DocumentId = request.DocumentId,
-            CustomData = assistantName,
+            CustomData = chatId,
             Succeeded = true
         };
     }
@@ -174,7 +174,7 @@ public override async Task<DocumentOperationResponse> PerformOperationAsync(Docu
 See the following files for implementation details:
 
 - [AIDocumentOperationService.cs](./CS/ReportingApp/Services/AIDocumentOperationService.cs)
-- [AIAssistantProvider.cs](./CS/ReportingApp/Services/AIAssistantProvider.cs)
+- [AIReportingChatService.cs](./CS/ReportingApp/Services/AIReportingChatService.cs)
 
 #### Communicate with the Assistant
 
@@ -182,16 +182,23 @@ Each time a user sends a message, the [`onMessageEntered`](https://js.devexpress
 
 ```js
 //...
-async function getAIResponse(text, id) {
+async function getAIResponse(instance, text, id) {
     const formData = new FormData();
     formData.append('text', text);
     formData.append('chatId', id);
     lastUserQuery = text;
-    const response = await fetch(`/AI/GetAnswer`, {
-        method: 'POST',
-        body: formData
-    });
-    return await response.text();
+    return _tryFetch(instance, async () => {
+        const response = await fetch('/AI/GetAnswer', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            _handleError(instance, { code: `${response.status}`, message: `Internal server error` });
+            return;
+        }
+        return await response.text();
+    }, 'GetAnswer');
 }
 // ...
 function RenderAssistantMessage(instance, message) {
@@ -200,12 +207,16 @@ function RenderAssistantMessage(instance, message) {
 }
 // ...
 onMessageEntered: async (e) => {
+    lastRefreshButton?.remove();
     const instance = e.component;
+    instance.option('alerts', []);
     instance.renderMessage(e.message);
     instance.option({ typingUsers: [assistant] });
     const userInput = e.message.text;
-
-    var response = await getAIResponse(userInput, assistant.id);
+    if (!assistant.id && model.chatId) {
+        assistant.id = model.chatId;
+    }
+    const response = await getAIResponse(instance, userInput, assistant.id);
     RenderAssistantMessage(instance, response);
 }
 // ...
@@ -222,7 +233,7 @@ onMessageEntered: async (e) => {
 
 ### Web Report Designer (UI Assistant)
 
-The following image displays Web Report Designer UI implemented in this example. The AI Assistant tab uses a `dxChat` component to display requests and responses:
+The following image displays the Web Report Designer UI implementation outlined in this example. The AI Assistant tab uses a DevExtreme Chat (`dxChat`) component to display requests and responses:
 
 ![Web Report Designer](images/web-report-designer.png)
 
@@ -234,7 +245,8 @@ On the `BeforeRender` event, add a new tab (a container for the assistant interf
 @model DevExpress.XtraReports.Web.ReportDesigner.ReportDesignerModel
 <script>
     async function BeforeRender(sender, args) {
-
+        const result = await fetch(`/AI/CreateUserAssistant`);
+        const chatId = await result.text();
         const tab = createAssistantTab(chatId);
         args.tabPanel.tabs.push(tab);
     }
@@ -266,10 +278,12 @@ On the `BeforeRender` event, send a request to `AIController` to create the assi
 ```js
 async function BeforeRender(sender, args) {
     const result = await fetch(`/AI/CreateUserAssistant`);
+    const chatId = await result.text();
+    // ...
 }
 ```
 
-The `AIAssistantProvider.CreateUserAssistant` method creates an assistant using the *documentation.pdf* file ([end-user documentation for Web Reporting Controls](https://github.com/DevExpress/dotnet-eud) in the PDF format) and the specified prompt. See the [AIAssistantProvider.cs](./CS/ReportingApp/Services/AIAssistantProvider.cs) file for implementation details.
+The `AIController.CreateUserAssistant` action calls `AIReportingChatService.OpenDesignerChatAsync` to read the *documentation.pdf* file ([end-user documentation for Web Reporting Controls](https://github.com/DevExpress/dotnet-eud) in PDF format) and creates a chat based on the specified instructions. See the [AIReportingChatService.cs](./CS/ReportingApp/Services/AIReportingChatService.cs) file to review implementation details.
 
 
 #### Communicate with the Assistant
@@ -278,16 +292,23 @@ Each time a user sends a message, the [`onMessageEntered`](https://js.devexpress
 
 ```js
 //...
-async function getAIResponse(text, id) {
+async function getAIResponse(instance, text, id) {
     const formData = new FormData();
     formData.append('text', text);
     formData.append('chatId', id);
     lastUserQuery = text;
-    const response = await fetch(`/AI/GetAnswer`, {
-        method: 'POST',
-        body: formData
-    });
-    return await response.text();
+    return _tryFetch(instance, async () => {
+        const response = await fetch('/AI/GetAnswer', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            _handleError(instance, { code: `${response.status}`, message: `Internal server error` });
+            return;
+        }
+        return await response.text();
+    }, 'GetAnswer');
 }
 // ...
 function RenderAssistantMessage(instance, message) {
@@ -296,12 +317,16 @@ function RenderAssistantMessage(instance, message) {
 }
 // ...
 onMessageEntered: async (e) => {
+    lastRefreshButton?.remove();
     const instance = e.component;
+    instance.option('alerts', []);
     instance.renderMessage(e.message);
     instance.option({ typingUsers: [assistant] });
     const userInput = e.message.text;
-
-    var response = await getAIResponse(userInput, assistant.id);
+    if (!assistant.id && model.chatId) {
+        assistant.id = model.chatId;
+    }
+    const response = await getAIResponse(instance, userInput, assistant.id);
     RenderAssistantMessage(instance, response);
 }
 // ...
