@@ -4,16 +4,16 @@
 [![](https://img.shields.io/badge/📖_How_to_use_DevExpress_Examples-e9f6fc?style=flat-square)](https://docs.devexpress.com/GeneralInformation/403183)
 [![](https://img.shields.io/badge/💬_Leave_Feedback-feecdd?style=flat-square)](#does-this-example-address-your-development-requirementsobjectives)
 <!-- default badges end -->
-# Reports for ASP.NET Core - Integrate an AI Assistant (Azure OpenAI)
+# DevExpress Reports for ASP.NET Core — Integrate an AI Assistant (Azure OpenAI)
 
-This example is an ASP.NET Core application with integrated DevExpress Reports and an AI assistant. User requests and assistant responses are displayed on-screen using the DevExtreme [`dxChat`](https://js.devexpress.com/jQuery/Documentation/24_2/ApiReference/UI_Components/dxChat/) component.
+This example is an ASP.NET Core application with integrated DevExpress Reports and an AI assistant. User requests and assistant responses are displayed on-screen using the DevExtreme Chat ([`dxChat`](https://js.devexpress.com/jQuery/Documentation/24_2/ApiReference/UI_Components/dxChat/)) component.
 
-The AI assistant's role depends on the associated DevExpress Reports component:
+The AI assistant's role depends on associated DevExpress Reports component:
 
-- **Data Analysis Assistant**: An assistant for the DevExpress *Web Document Viewer*. This assistant analyzes report content and answers questions related to information within the report.
-- **UI Assistant**: An assistant for the DevExpress *Web Report Designer*. This assistant explains how to use the Designer UI to accomplish various tasks. Responses are based on information from [end-user documentation](https://github.com/DevExpress/dotnet-eud) for DevExpress Web Reporting components.
+- **Data Analysis Assistant**: An assistant for the DevExpress Web Document Viewer. This assistant analyzes report content and answers questions related to information within the report.
+- **UI Assistant**: An assistant for the DevExpress Web Report Designer. This assistant explains how to use the Designer UI to accomplish various tasks. Responses are based on information from [end-user documentation](https://github.com/DevExpress/dotnet-eud) for DevExpress Web Reporting components.
 
-**Note: AI Assistant initialization takes time. The assistant tab becomes available once Azure OpenAI finishes uploading and indexing the source document on the server.**
+**Note: AI Assistant initialization takes time. The assistant tab becomes available once Azure OpenAI uploads and indexes the source document on the server.**
 
 To answer questions, the application uploads ODF documents to Azure OpenAI, and creates a chat agent using the [Azure OpenAI Responses API](https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/responses?tabs=csharp). The agent uses File Search and Code Interpreter tools to read and analyze the document.
 
@@ -28,7 +28,7 @@ To answer questions, the application uploads ODF documents to Azure OpenAI, and 
 
 Create an Azure OpenAI resource in the Azure portal. Refer to the following help topic for additional information: [Microsoft - Create and deploy an Azure OpenAI Service resource](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/create-resource?pivots=web-portal).
 
-Once you obtain a private endpoint and an API key, register them as `AZURE_OPENAI_ENDPOINT` and `AZURE_OPENAI_APIKEY` environment variables. The [EnvSettings.cs](./CS/ReportingApp/EnvSettings.cs) file reads these settings. `DeploymentName` is the name of your Azure model deployment. The model must support Responses API, File Search, and Code Interpreter tools (for example, `gpt-5.4`):
+Once you obtain a private endpoint and an API key, register them as `AZURE_OPENAI_ENDPOINT` and `AZURE_OPENAI_APIKEY` environment variables. The [EnvSettings.cs](./CS/ReportingApp/EnvSettings.cs) file reads these settings. `DeploymentName` is the name of your Azure model deployment. he model must support Responses API, File Search, and Code Interpreter tools (for example, `gpt-5.4`):
 
 ```cs
 public static class EnvSettings {
@@ -67,7 +67,7 @@ Files to Review:
 
 #### AI Assistant Provider
 
-On the server side, the `AIReportingChatService` service manages chat sessions:
+On the server side, the `AIReportingChatService` manages chat sessions:
 
 ```cs
 public interface IAIReportingChatService {
@@ -104,7 +104,7 @@ Files to Review:
 
 ### Web Document Viewer (Data Analysis Assistant)
 
-The following image displays Web Document Viewer UI implemented in this example. The AI Assistant tab uses a `dxChat` component to display requests and responses:
+The following image displays the Web Document Viewer UI implementation described in this example. The AI Assistant tab uses a DevExtreme Chat (`dxChat`) component to display requests and responses:
 
 ![Web Document Viewer](images/web-document-viewer.png)
 
@@ -233,7 +233,7 @@ onMessageEntered: async (e) => {
 
 ### Web Report Designer (UI Assistant)
 
-The following image displays Web Report Designer UI implemented in this example. The AI Assistant tab uses a `dxChat` component to display requests and responses:
+The following image displays the Web Report Designer UI implementation outlined in this example. The AI Assistant tab uses a DevExtreme Chat (`dxChat`) component to display requests and responses:
 
 ![Web Report Designer](images/web-report-designer.png)
 
@@ -283,7 +283,7 @@ async function BeforeRender(sender, args) {
 }
 ```
 
-The `AIController.CreateUserAssistant` action calls `AIReportingChatService.OpenDesignerChatAsync` to read the *documentation.pdf* file ([end-user documentation for Web Reporting Controls](https://github.com/DevExpress/dotnet-eud) in PDF format) and creates a chat based on the specified prompt. See the [AIReportingChatService.cs](./CS/ReportingApp/Services/AIReportingChatService.cs) file to review implementation details.
+The `AIController.CreateUserAssistant` action calls `AIReportingChatService.OpenDesignerChatAsync` to read the *documentation.pdf* file ([end-user documentation for Web Reporting Controls](https://github.com/DevExpress/dotnet-eud) in PDF format) and creates a chat based on the specified instructions. See the [AIReportingChatService.cs](./CS/ReportingApp/Services/AIReportingChatService.cs) file to review implementation details.
 
 
 #### Communicate with the Assistant
